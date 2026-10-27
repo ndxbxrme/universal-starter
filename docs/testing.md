@@ -4,7 +4,7 @@ Run `npm test` for deterministic unit tests and `npm run lint` for ESLint. `npm 
 
 Browser tests build a real production bundle under `/starter-test/` and use desktop and phone viewport profiles. They cover navigation/history, persisted theme, pointer and keyboard carousel movement, offline navigation, unsupported sharing and subpath assets. Browser profiles do not verify physical devices or native plugins.
 
-Use `npm run check` for lint, formatting, unit and browser tests. Build outputs and test traces are ignored. Failure traces are in test-results. Native smoke coverage will be documented as wrappers are added.
+Use `npm run check` for lint, formatting, unit and browser tests. Build outputs and test traces are ignored. Failure traces are in test-results. Native smoke coverage and remaining host/device prerequisites are recorded below and in verification.md.
 
 Automated axe checks cover all five views in light and dark themes, using WCAG 2 A/AA and 2.1 AA tags. This complements keyboard tests and screenshot inspection; it does not establish full accessibility conformance.
 

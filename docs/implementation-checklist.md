@@ -2,19 +2,19 @@
 
 Ordered gates from specification §17. PASS requires commands/evidence; BLOCKED requires a prerequisite. No native integration is inferred from unit mocks.
 
-| Phase                | Result         | Evidence                                                                                       |
-| -------------------- | -------------- | ---------------------------------------------------------------------------------------------- |
-| 0 Discovery          | PASS           | Both instructions fully read; repo/toolchain/official compatibility inspected.                 |
-| 1 Shared SPA         | PASS           | Build, unit/browser/subpath/accessibility checks and screenshots.                              |
-| 2 Contract           | PASS           | Capability/error/selection boundaries and adapter tests.                                       |
-| 3 Android            | PASS / BLOCKED | APK/unsigned AAB compile; emulator/phone/signing runtime blockers recorded below.              |
-| 4 iOS                | PASS / BLOCKED | Real project/sync/assets/plists/Xcode syntax pass; Mac/device/account unavailable.             |
-| 5 Electron           | PASS / BLOCKED | Linux packages, sandbox/preload/native clipboard/offline smoke pass; other OS/signing blocked. |
-| 6 CI/CD              | PASS / BLOCKED | Syntax/pins/artifact staging pass; remote workflows/settings not executed.                     |
-| 7 Hardening/docs     | PASS           | Schemas, setup, credentials, docs, guards, licenses and safety tests.                          |
-| 8 Final verification | In progress    | Rebuild/test evidence will be finalized in verification.md.                                    |
+| Phase                | Result         | Evidence                                                                                         |
+| -------------------- | -------------- | ------------------------------------------------------------------------------------------------ |
+| 0 Discovery          | PASS           | Both instructions fully read; repo/toolchain/official compatibility inspected.                   |
+| 1 Shared SPA         | PASS           | Build, unit/browser/subpath/accessibility checks and screenshots.                                |
+| 2 Contract           | PASS           | Capability/error/selection boundaries and adapter tests.                                         |
+| 3 Android            | PASS / BLOCKED | APK/unsigned AAB compile; emulator/phone/signing runtime blockers recorded below.                |
+| 4 iOS                | PASS / BLOCKED | Real project/sync/assets/plists/Xcode syntax pass; Mac/device/account unavailable.               |
+| 5 Electron           | PASS / BLOCKED | Linux packages, sandbox/preload/native clipboard/offline smoke pass; other OS/signing blocked.   |
+| 6 CI/CD              | PASS / BLOCKED | Syntax/pins/artifact staging pass; remote workflows/settings not executed.                       |
+| 7 Hardening/docs     | PASS           | Schemas, setup, credentials, docs, guards, licenses and safety tests.                            |
+| 8 Final verification | PASS / BLOCKED | Feasible final checks complete; full §16 evidence and external prerequisites in verification.md. |
 
-Acceptance criteria from §16 will be recorded in verification.md, including external/device blockers.
+Acceptance criteria from §16 are recorded in verification.md, including external/device blockers. The following entries are historical phase records; the final matrix supersedes interim build/test counts and in-progress notes.
 
 Phase 1 PASS: npm ci, npm run dev (HTTP 200), lint, 3 unit tests, native build and 6 browser E2E cases (desktop/phone under /starter-test/). Desktop and 390px screenshots inspected. Initial missing Chromium and navigation accessible-name/CSP failures fixed and rerun successfully. dist/native and dist/web generated. No web deployment attempted.
 
@@ -37,3 +37,5 @@ Phase 6 feasible checks PASS: actionlint 1.7.12 (checksum-verified install), SHA
 Android software-emulator investigation complete: both the default emulated CPU and a Nehalem CPU-model retry rebooted with boringssl-self-check-failed before ADB became ready. No app was installed/launched. Emulator stopped; runtime smoke BLOCKED until KVM/accelerated runner or a phone is available. SDK, emulator, API 34 system image, AVD, JDK and Maestro remain installed outside the repo for later use.
 
 Phase 7 feasible checks PASS: full documentation/command reference; config/provenance JSON Schemas; staged/idempotent/dry-run metadata sync with immutable ID guard; single-master icons/splash and bundled runtime license notices; native release guards; guided external-reference credentials, masked/environment password handling, OS-store signing providers, separately gated notarization, redacted confirmed GitHub sync (dry-run only exercised); no generator/updater CLI. Lint, 27 unit tests and actionlint pass. A canonical-accent contrast regression was caught by axe, fixed to the darker default and the browser suite rerun (9 PASS + intentional desktop touch skip); final tablet/file/manifest and source-rebuild checks are Phase 8. Credential unit tests use fixtures/mocks and prove redaction/argument handling, not production signing. Actual credential signing/account checks remain BLOCKED without client assets/access. Documentation scripts/links verified against implementation. No external writes performed.
+
+Phase 8: final shared checks pass (30 unit tests; 11 browser tests and one intentional desktop touch skip). Android debug APK, instrumentation APK, lint, isolated LAN debug-overlay compilation and unsigned release AAB checked; real release guard rejects injected server config. Final Linux test-build and packaged ASAR smoke include actual sandbox, restricted IPC, native clipboard and cold offline reload. AppImage/DEB rebuilt and checksum staging verified. npm ci/audit, configuration dry-run, documentation/link checks, actionlint, repository guards and iOS syntax/plist/catalog checks pass. Remaining native runtime, OS, signing and account checks are BLOCKED as detailed in verification.md; no publication or account mutation attempted.

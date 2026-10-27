@@ -1,0 +1,32 @@
+{
+  "sourceCommit": "f7c5e43",
+  "host": "linux-x64",
+  "productionSigned": false,
+  "artifacts": [
+    {
+      "path": "artifacts/staging/android/universal-starter-0.1.0-android-universal-production.aab",
+      "bytes": 3028086,
+      "sha256": "175bc09d13c088b6dc4a394e57c8560f1ebc8848626f67a38d39d769d5b0aeff"
+    },
+    {
+      "path": "artifacts/staging/android-debug/universal-starter-0.1.0-android-universal-dev.apk",
+      "bytes": 4665379,
+      "sha256": "e553f001673a5634cf66b9001d7e3e3e410edec0409b511b4a5f645ffe396302"
+    },
+    {
+      "path": "artifacts/staging/desktop/universal-starter-0.1.0-linux-x64-dev.AppImage",
+      "bytes": 133737484,
+      "sha256": "a7a1cc31d64b7f634932ecd6a312c8059ff5ce27e4592b6cab1ddadbeb8648bf"
+    },
+    {
+      "path": "artifacts/staging/desktop/universal-starter-0.1.0-linux-x64-dev.deb",
+      "bytes": 108061592,
+      "sha256": "20679d81903a4828edb5d1a8a6bf0276c37066a5e970be52dc9a0647e7a83c57"
+    },
+    {
+      "path": "artifacts/staging/web/universal-starter-0.1.0-web-universal-dev.tar.gz",
+      "bytes": 33638,
+      "sha256": "af01b2ec61c00dd02855c555dd3c4785e7364572e613302834176dfd7238882d"
+    }
+  ]
+}
