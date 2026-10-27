@@ -26,6 +26,10 @@ android {
             }
         }
     }
+    // Only the live-reload helper selects its ignored, isolated manifest copy.
+    if (System.getenv('UNIVERSAL_LIVE_RELOAD') == '1') {
+        sourceSets.debug.manifest.srcFile 'build/universal-live/AndroidManifest.xml'
+    }
     buildTypes {
         release {
             if (System.getenv('ANDROID_KEYSTORE_PATH')) signingConfig signingConfigs.release

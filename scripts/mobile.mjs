@@ -1,3 +1,4 @@
+import { liveManifest } from "./live-manifest.mjs";
 import { assertReleaseChannel } from "./lib.mjs";
 import { applyReferences } from "./credentials/lib.mjs";
 import {
@@ -156,16 +157,20 @@ cli(async () => {
       server: { host, port: 5173, strictPort: true },
     });
     const path = "android/app/src/main/assets/capacitor.config.json";
-    const manifest = "android/app/src/debug/AndroidManifest.xml";
-    const previous = existsSync(manifest) ? readFileSync(manifest) : null;
+    const sourceManifest = "android/app/src/debug/AndroidManifest.xml";
+    const stagedManifest = liveManifest(
+      existsSync(sourceManifest)
+        ? readFileSync(sourceManifest, "utf8")
+        : undefined,
+    );
+    const manifest = "android/app/build/universal-live/AndroidManifest.xml";
     const restore = async () => {
       if (existsSync(path)) {
         const native = JSON.parse(readFileSync(path));
         delete native.server;
         writeFileSync(path, JSON.stringify(native, null, 2) + "\n");
       }
-      if (previous) writeFileSync(manifest, previous);
-      else rmSync(manifest, { force: true });
+      rmSync(manifest, { force: true });
       await server.close();
     };
     const stop = async () => {
@@ -180,15 +185,12 @@ cli(async () => {
       const native = JSON.parse(readFileSync(path));
       native.server = { url: `http://${host}:5173`, cleartext: true };
       writeFileSync(path, JSON.stringify(native, null, 2) + "\n");
-      mkdirSync("android/app/src/debug", { recursive: true });
-      writeFileSync(
-        manifest,
-        '<manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools"><application android:usesCleartextTraffic="true" tools:replace="android:usesCleartextTraffic" /></manifest>',
-      );
+      mkdirSync("android/app/build/universal-live", { recursive: true });
+      writeFileSync(manifest, stagedManifest);
       run(
         process.platform === "win32" ? "gradlew.bat" : "./gradlew",
         [":app:assembleDebug", "--no-daemon"],
-        { cwd: "android" },
+        { cwd: "android", env: { ...process.env, UNIVERSAL_LIVE_RELOAD: "1" } },
       );
       adb([
         "install",

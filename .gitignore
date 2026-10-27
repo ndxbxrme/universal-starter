@@ -21,6 +21,5 @@ android/**/build/
 ios/**/DerivedData/
 ios/**/xcuserdata/
 
-android/app/src/debug/AndroidManifest.xml
 
 ios/.xcode.env.local
