@@ -1,0 +1,7 @@
+* text=auto
+*.bat text eol=crlf whitespace=cr-at-eol
+*.md whitespace=-blank-at-eol
+*.png binary
+*.ico binary
+*.icns binary
+*.jar binary
