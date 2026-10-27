@@ -152,10 +152,6 @@ cli(async () => {
       throw new Error(
         "Supply your private LAN interface: npm run dev:android -- --host LAN_IP --device ADB_SERIAL. Never expose Vite or ADB on a public network.",
       );
-    const { createServer } = await import("vite");
-    const server = await createServer({
-      server: { host, port: 5173, strictPort: true },
-    });
     const path = "android/app/src/main/assets/capacitor.config.json";
     const sourceManifest = "android/app/src/debug/AndroidManifest.xml";
     const stagedManifest = liveManifest(
@@ -164,6 +160,11 @@ cli(async () => {
         : undefined,
     );
     const manifest = "android/app/build/universal-live/AndroidManifest.xml";
+    const { createServer } = await import("vite");
+    const server = await createServer({
+      server: { host, port: 5173, strictPort: true },
+    });
+
     const restore = async () => {
       if (existsSync(path)) {
         const native = JSON.parse(readFileSync(path));
