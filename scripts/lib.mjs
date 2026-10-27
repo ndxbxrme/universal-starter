@@ -36,8 +36,40 @@ export function requireMac() {
       "BLOCKED: iOS/macOS requires macOS and Xcode 26+. See docs/ios.md.",
     );
   requireTool("xcodebuild", ["-version"]);
+  if (!compatibleXcode())
+    throw new Error(
+      "BLOCKED: Capacitor iOS requires Xcode 26+. See docs/ios.md.",
+    );
+}
+export function toolVersion(command, args, pattern) {
+  const result = spawnSync(command, args, {
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+    shell: process.platform === "win32" && /^(npm|npx)$/.test(command),
+  });
+  return result.status === 0
+    ? (result.stdout + result.stderr).match(pattern)?.[1] || null
+    : null;
+}
+export function compatibleJava() {
+  return Boolean(
+    toolVersion("java", ["-version"], /version "([0-9.]+)"/)?.startsWith(
+      "21.",
+    ) && has("javac", ["-version"]),
+  );
+}
+export function compatibleXcode() {
+  return (
+    Number(
+      toolVersion("xcodebuild", ["-version"], /Xcode ([0-9.]+)/)?.split(".")[0],
+    ) >= 26
+  );
 }
 export function requireAndroid() {
+  if (!compatibleJava())
+    throw new Error(
+      "BLOCKED: use the tested JDK 21 (JAVA_HOME and PATH, including javac). See docs/android.md.",
+    );
   requireTool("java", ["-version"]);
   if (!process.env.ANDROID_HOME || !existsSync(process.env.ANDROID_HOME))
     throw new Error(

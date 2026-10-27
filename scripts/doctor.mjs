@@ -1,5 +1,11 @@
 import { readFileSync, existsSync } from "node:fs";
-import { has, cli } from "./lib.mjs";
+import {
+  has,
+  cli,
+  compatibleJava,
+  compatibleXcode,
+  toolVersion,
+} from "./lib.mjs";
 import { loadConfig } from "./config.mjs";
 import { printStatus } from "./credentials/status.mjs";
 cli(() => {
@@ -24,6 +30,18 @@ cli(() => {
   console.log(
     `KVM: ${existsSync("/dev/kvm") ? "PASS (presence only; check emulator -accel-check)" : "BLOCKED on Linux — no /dev/kvm; physical device or accelerated CI needed"}`,
   );
+  console.log(
+    `JDK 21 with javac: ${compatibleJava() ? "PASS" : "BLOCKED — select JDK 21"}`,
+  );
+  console.log(
+    `Xcode 26+: ${compatibleXcode() ? "PASS" : "BLOCKED — macOS/Xcode 26+ required for iOS"}`,
+  );
+  const npmVersion = toolVersion(
+    "npm",
+    ["--version"],
+    /([0-9]+\.[0-9]+\.[0-9]+)/,
+  );
+  console.log(`npm version: ${npmVersion || "BLOCKED"}`);
   const cap = JSON.parse(readFileSync("capacitor.config.json"));
   if (cap.server)
     throw new Error(

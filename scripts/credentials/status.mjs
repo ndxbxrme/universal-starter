@@ -1,16 +1,16 @@
 import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
-import { has, isMain } from "../lib.mjs";
+import { has, isMain, compatibleJava, compatibleXcode } from "../lib.mjs";
 export function readiness(env = process.env, host = process.platform) {
   const desktop =
     host === "darwin" ? "macos" : host === "win32" ? "windows" : "linux";
   const development = {
     web: Number(process.versions.node.split(".")[0]) === 24,
     android:
-      has("java", ["-version"]) &&
+      compatibleJava() &&
       Boolean(env.ANDROID_HOME && existsSync(env.ANDROID_HOME)) &&
       has("adb", ["version"]),
-    ios: host === "darwin" && has("xcodebuild", ["-version"]),
+    ios: host === "darwin" && compatibleXcode(),
     windows: desktop === "windows",
     macos: desktop === "macos",
     linux: desktop === "linux",
