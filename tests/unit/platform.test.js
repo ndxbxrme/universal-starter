@@ -81,3 +81,10 @@ it("maps official native plugin cancellation and unavailability", () => {
   expect(normalizeError({ message: "Share canceled" }).code).toBe("CANCELLED");
   expect(normalizeError({ code: "UNIMPLEMENTED" }).code).toBe("UNSUPPORTED");
 });
+
+it("exposes runtime identity and build channel through the public selector", async () => {
+  const { getPlatform } = await import("../../src/platform/index.js");
+  const platform = await getPlatform();
+  expect(platform.id).toBe("web");
+  expect(platform.channel).toBe("dev");
+});

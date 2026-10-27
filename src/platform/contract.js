@@ -1,6 +1,7 @@
 /** Stable promise-based platform API. Feature code consumes this surface only.
  * @typedef {'UNSUPPORTED'|'PERMISSION_DENIED'|'CANCELLED'|'FAILED'} ErrorCode
  * @typedef {{supported:boolean, permission:'granted'|'denied'|'prompt'|'unavailable'|'unknown', reason?:string}} Capability
+ * getPlatform returns id (runtime OS) and channel (dev/ci/beta/production).
  * Files return metadata only: name, size, type. Never expose native paths.
  * Network.subscribe returns an unsubscribe function. No API prompts on startup.
  */
