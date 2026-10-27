@@ -1,0 +1,11 @@
+# Privacy policy — template requiring review
+
+This is an editable template, not an approved legal/store policy. Replace it with the client's identity, contact/support URL, jurisdiction-specific disclosures and actual product behaviour before submission. Review after adding any plugins, business logic or third-party services.
+
+The starter demo does not require an account or send analytics/telemetry to a backend. Theme preference is stored locally on the device/browser. A short in-memory event log and runtime/version/capability diagnostics are displayed locally; users can explicitly copy diagnostics. Unique device IDs and device names are not included. No log is automatically transmitted.
+
+If the user chooses a file, the demo displays its name, type and size without reading/uploading content. Clipboard writing, sharing and local notifications occur only after user interaction and applicable OS/browser permission. The share destination and copied diagnostics are under the user's control. Notification permissions can be withdrawn through OS/browser settings.
+
+Placeholder inventory for store review: theme preference (local), runtime/OS versions (local diagnostics), network connectivity (local), selected-file metadata (local display), user-triggered clipboard/share/notification text. No remote push, location, contacts, camera, advertising ID, account or backend storage is included. Hosting providers/browser/OS/store services may process their own operational data under their policies; the client must review those relationships and any actual additions before making store declarations.
+
+Retention: demo events disappear when the app closes, theme remains until reset/local data removal, and user-selected external destinations follow their own retention. Replace this section for real product data, deletion/access requests, children/audience rules, international transfers and contact procedures. This template does not guarantee regulatory or store compliance.

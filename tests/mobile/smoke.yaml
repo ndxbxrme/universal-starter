@@ -1,0 +1,16 @@
+appId: ${APP_ID}
+---
+- launchApp:
+    clearState: true
+- assertVisible: "Your app. Everywhere."
+- tapOn: "Interactions"
+- assertVisible: "Make something happen."
+- scrollUntilVisible:
+    element: "Try device.*"
+    direction: DOWN
+- tapOn: "Try device.*"
+- assertVisible: ".*device: success.*"
+- takeScreenshot: native-device-plugin
+- tapOn: "Diagnostics"
+- assertVisible: "Under the surface."
+- takeScreenshot: native-diagnostics

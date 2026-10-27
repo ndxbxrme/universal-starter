@@ -1,0 +1,13 @@
+# Known limitations and remaining acceptance
+
+See verification.md for evidence and exact PASS/FAIL/BLOCKED entries. Linux is the implementation host. Android debug APK and unsigned AAB build; Electron Linux AppImage/DEB and sandboxed native smoke build/run. These results do not establish all target OS/device/store behaviour.
+
+Android emulator runtime: SDK/emulator/API 34 image installed, KVM absent. Default and alternate CPU software runs rebooted with boringssl-self-check-failed before ADB readiness; no app install/navigation/plugin smoke passed. Use KVM/CI or a phone and run test:android. Wireless physical pairing/install/live reload needs Android 11+ phone/trusted LAN and remains unverified. Android release signing/Play upload needs client credentials/account; current AAB is unsigned.
+
+iOS project/plugin sync/plists/assets/Xcode syntax are checked on Linux; compilation, Swift package resolution lock, simulator smoke, real iPhone, wireless Xcode deployment, signing and TestFlight are blocked by macOS/Xcode/device/account prerequisites. Windows NSIS/macOS DMG/ZIP build and installation need matching runners. Signing/notarization/provider/trust must be tested on actual exported artifacts. Local Linux packages are generated and unpacked-app tested; system installation/uninstallation needs an authorized target system and is not claimed.
+
+CI/Pages/release workflows are syntax-checked but have not run in an external repository. Enable Actions/Pages, configure protected environments and signing runners, then verify actual jobs/deployments. No remote permissions, secrets, accounts, tags, releases or store listings have been configured/published.
+
+Browser capability availability does not guarantee hardware/OS success (notably vibration and notifications). Native simulator haptics do not establish physical vibration. The webview system file picker depends on OS/WebView support; cancellation on older supported WebViews requires device verification. There is no desktop share/haptics implementation and unsupported buttons are disabled. Dialog selections are mocked only in desktop integration tests; actual native clipboard and isolated preload are tested. Browser shell navigation stays usable offline after load; offline reload/PWA caching is not implemented. Native apps bundle their core assets.
+
+V1 intentionally excludes the future generator/updater CLI, backend/auth/analytics/push server, automatic certificate issuance, automatic store uploads and automatic desktop updates. Guides describe explicit manual next steps rather than pretending those features are complete.

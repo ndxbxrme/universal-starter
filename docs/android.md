@@ -1,0 +1,15 @@
+# Android
+
+Install Android Studio Otter 2025.2.1 or newer, JDK 21, Android SDK API 36, build tools 36 and platform-tools. Set JAVA_HOME, ANDROID_HOME and add platform-tools to PATH. Minimum app API is 24 (Android 7). Wireless pairing without USB needs Android 11+. Generated Capacitor 8.5.3 uses Gradle 8.14.3; the committed wrapper downloads it.
+
+`npm run build:android` builds/syncs the shared SPA then runs assembleDebug. Output: android/app/build/outputs/apk/debug/app-debug.apk, development-signed by Gradle. `npm run android:open` opens Studio. Native/plugin changes require a sync/rebuild.
+
+`npm run build:android:release` runs bundleRelease. Without credentials its AAB is explicitly UNSIGNED and cannot go to Play. With client credentials referenced by ANDROID_KEYSTORE_PATH, ANDROID_KEY_ALIAS, ANDROID_STORE_PASSWORD, ANDROID_KEY_PASSWORD it signs using Gradle. Output: android/app/build/outputs/bundle/release/app-release.aab. Never put credentials in Gradle files or command-line arguments. Verify with `jarsigner -verify -verbose -certs android/app/build/outputs/bundle/release/app-release.aab`. See credentials.md before onboarding.
+
+Permissions: INTERNET for network status and development, ACCESS_NETWORK_STATE supplied by Network, VIBRATE by Haptics, POST_NOTIFICATIONS for Android 13+ local notifications. The plugin’s exact-alarm permission is explicitly removed by the app manifest; notifications use inexact scheduling. RECEIVE_BOOT_COMPLETED restores scheduled local notifications after reboot, and WAKE_LOCK lets the plugin deliver scheduled notifications while the device sleeps. No camera/location/storage permissions. System file picker grants only chosen-file access. Back goes through shared history; Home back exits the app. Release manifest blocks cleartext and backups. Local notification denial is explained; enable via Android Settings → Apps → Notifications.
+
+Create/start an API 36 emulator in Studio; verify `adb devices -l`. Install Maestro from https://docs.maestro.dev/getting-started/installing-maestro then run `npm run test:android`. It builds, installs, launches and checks shared navigation plus the real Device plugin via the Interactions screen. Screenshots/test output are in artifacts/android-smoke; logcat is printed for CI capture. An emulator result does not validate physical haptic hardware or wireless pairing.
+
+Play publication needs a permanent application ID, Play Console client ownership, upload key, Play App Signing enrollment, store listing, data-safety/privacy declarations and tester setup. No store upload occurs in debug builds. Change placeholder ID before publication using the documented guided native migration.
+
+The project limits Gradle to two workers and runs Kotlin compilation in the Gradle process to reduce concurrent memory use on small development machines. Build tools 35.0.0 may also be installed by AGP 8.13.0 even with API 36/36.0.0 available. An SDK XML-version warning from AGP with newer command-line tools is not itself a build failure; verify the final Gradle result.

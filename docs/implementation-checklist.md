@@ -1,0 +1,39 @@
+# Implementation and verification log
+
+Ordered gates from specification §17. PASS requires commands/evidence; BLOCKED requires a prerequisite. No native integration is inferred from unit mocks.
+
+| Phase                | Result         | Evidence                                                                                       |
+| -------------------- | -------------- | ---------------------------------------------------------------------------------------------- |
+| 0 Discovery          | PASS           | Both instructions fully read; repo/toolchain/official compatibility inspected.                 |
+| 1 Shared SPA         | PASS           | Build, unit/browser/subpath/accessibility checks and screenshots.                              |
+| 2 Contract           | PASS           | Capability/error/selection boundaries and adapter tests.                                       |
+| 3 Android            | PASS / BLOCKED | APK/unsigned AAB compile; emulator/phone/signing runtime blockers recorded below.              |
+| 4 iOS                | PASS / BLOCKED | Real project/sync/assets/plists/Xcode syntax pass; Mac/device/account unavailable.             |
+| 5 Electron           | PASS / BLOCKED | Linux packages, sandbox/preload/native clipboard/offline smoke pass; other OS/signing blocked. |
+| 6 CI/CD              | PASS / BLOCKED | Syntax/pins/artifact staging pass; remote workflows/settings not executed.                     |
+| 7 Hardening/docs     | PASS           | Schemas, setup, credentials, docs, guards, licenses and safety tests.                          |
+| 8 Final verification | In progress    | Rebuild/test evidence will be finalized in verification.md.                                    |
+
+Acceptance criteria from §16 will be recorded in verification.md, including external/device blockers.
+
+Phase 1 PASS: npm ci, npm run dev (HTTP 200), lint, 3 unit tests, native build and 6 browser E2E cases (desktop/phone under /starter-test/). Desktop and 390px screenshots inspected. Initial missing Chromium and navigation accessible-name/CSP failures fixed and rerun successfully. dist/native and dist/web generated. No web deployment attempted.
+
+Phase 2 PASS: 8 unit tests (selection, error mapping, unsupported capability handling, IPC adapter and state), lint, shared build, 6 browser E2E cases. Native imports stay inside adapters. Browser UA is not used to select privileges.
+
+Phase 3 underway: generated Android project and seven official plugins sync successfully. Original adaptive icons and splash assets generated. Wireless helpers and debug-only LAN reload implemented; release Gradle guard rejects dev config/assets. Native unit mocks validate adapter semantics only. Additional accessibility checks passed across five views in both themes on desktop and phone (8 browser cases total). User authorized JDK/SDK installation; installing outside repository to attempt native compilation. Physical wireless deployment remains BLOCKED without phone.
+
+During Phase 3 verification, VS Code crashed and interrupted both Gradle and the software emulator. No APK had been produced; Java compilation was in progress. Build restarted using cached dependencies. Native build and emulator execution are now serialized to reduce host memory pressure (7 GB RAM). No native integration success is claimed from the interrupted attempt.
+
+Phase 3 core verification PASS: Gradle `BUILD SUCCESSFUL in 12m 20s` after an interrupted first attempt; APK 4.2 MB at android/app/build/outputs/apk/debug/app-debug.apk. apksigner verified Android Debug certificate; ZIP inspection found local SPA/strict CSP/no server config. aapt confirmed version 0.1.0, code 1, API 24/36, six required permissions and AndroidX signature-only receiver permission; no exact-alarm permission. Unit tests: 15 PASS. Browser: 9 PASS, 1 intentional desktop touch skip; accessibility timeout raised to 90 seconds after a resource-contention timeout, then full suite rerun successfully. Hardware emulator BLOCKED: accel-check exit 8, /dev/kvm unavailable. Software emulator launched but stayed offline before host interruption, no native runtime success claimed. Phone wireless/signing/store checks BLOCKED without device/client credentials/accounts. Extra unsigned release AAB build is in progress; no production signing attempted.
+
+Phase 4 feasible checks PASS: official iOS project generated, all 7 plugins synced via SPM, Xcode project parsed with xcode and patched uuid, plists/asset catalogs and bundled config validated, custom icons/splash generated, versions set to 0.1.0/build 1. Lint and 15 unit tests PASS. build:ios/test:ios both BLOCKED with macOS/Xcode prerequisite errors on Linux. Device/TestFlight/signing and first Mac Package.resolved remain BLOCKED. See ios.md.
+
+Android extra release check PASS: `:app:bundleRelease`, BUILD SUCCESSFUL in 8m 29s, unsigned 2.9 MB AAB produced. No production credentials used. Signed release/store readiness remains BLOCKED.
+
+Phase 5 PASS on Linux x64: Electron 45.1.0 / builder 26.18.0; lint + 18 unit tests; test-build and packaged ASAR smoke tests passed with actual renderer sandbox enabled, no renderer Node globals, restricted preload, IPC validation, real clipboard, dialog metadata/cancellation mocks, navigation/window blocking, offline UI and clean exit. Linux AppImage (~128 MB) and DEB (~102 MB) generated after fixing required homepage metadata; DEB package/version/architecture inspected. Dev command launched Vite + Electron and returned HTTP 200. Local Ubuntu tests use existing trusted Chrome sandbox helper. First cold launch timed out; test startup allowance raised to 90 seconds and rerun successfully. Windows/macOS package commands BLOCKED by host; signing/notarization/updates remain BLOCKED/disabled. Software Android emulator retry is progressing with one CPU/1 GB; native app smoke still unverified.
+
+Phase 6 feasible checks PASS: actionlint 1.7.12 (checksum-verified install), SHA-pin/script/config repository checks, lint and 18 unit tests; Android and Linux artifact staging/checksums generated. CI/Pages/signing workflow execution BLOCKED without repository/account/provisioned runner access. No external configuration or publishing performed. Software Android retry reached system initialization but rebooted with `boringssl-self-check-failed` under TCG; ADB never became ready. This is host/emulator integration failure, not an app smoke result.
+
+Android software-emulator investigation complete: both the default emulated CPU and a Nehalem CPU-model retry rebooted with boringssl-self-check-failed before ADB became ready. No app was installed/launched. Emulator stopped; runtime smoke BLOCKED until KVM/accelerated runner or a phone is available. SDK, emulator, API 34 system image, AVD, JDK and Maestro remain installed outside the repo for later use.
+
+Phase 7 feasible checks PASS: full documentation/command reference; config/provenance JSON Schemas; staged/idempotent/dry-run metadata sync with immutable ID guard; single-master icons/splash and bundled runtime license notices; native release guards; guided external-reference credentials, masked/environment password handling, OS-store signing providers, separately gated notarization, redacted confirmed GitHub sync (dry-run only exercised); no generator/updater CLI. Lint, 27 unit tests and actionlint pass. A canonical-accent contrast regression was caught by axe, fixed to the darker default and the browser suite rerun (9 PASS + intentional desktop touch skip); final tablet/file/manifest and source-rebuild checks are Phase 8. Credential unit tests use fixtures/mocks and prove redaction/argument handling, not production signing. Actual credential signing/account checks remain BLOCKED without client assets/access. Documentation scripts/links verified against implementation. No external writes performed.

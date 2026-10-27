@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Managed branding colors; other native resources remain review-owned. -->
+<resources>
+    <color name="colorPrimary">#5950e8</color>
+    <color name="colorPrimaryDark">#5950e8</color>
+    <color name="colorAccent">#5950e8</color>
+</resources>

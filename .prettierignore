@@ -1,0 +1,10 @@
+node_modules
+dist
+android
+ios
+artifacts
+playwright-report
+test-results
+package-lock.json
+AGENTS.md
+CODEX_PROJECT_SPEC.md

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Universal Starter</string>
+    <string name="title_activity_main">Universal Starter</string>
+    <string name="package_name">dev.example.universalstarter</string>
+    <string name="custom_url_scheme">dev.example.universalstarter</string>
+</resources>

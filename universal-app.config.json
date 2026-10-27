@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "name": "Universal Starter",
+  "shortName": "Universal",
+  "appId": "dev.example.universalstarter",
+  "version": "0.1.0",
+  "androidVersionCode": 1,
+  "iosBuildNumber": 1,
+  "supportUrl": "https://example.com/support",
+  "websiteUrl": "https://example.com",
+  "theme": {
+    "primary": "#5950e8",
+    "background": "#f5f6fb",
+    "darkPrimary": "#b4adff",
+    "darkBackground": "#151722"
+  },
+  "targets": ["web", "android", "ios", "windows", "macos", "linux"],
+  "channel": "dev"
+}

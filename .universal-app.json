@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "templateName": "universal-starter",
+  "templateVersion": "0.1.0",
+  "projectId": "0fb35447-dd88-4f76-ad45-ec476212ef6f",
+  "initializedAppId": "dev.example.universalstarter",
+  "appliedMigrations": []
+}

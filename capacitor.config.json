@@ -1,0 +1,13 @@
+{
+  "appId": "dev.example.universalstarter",
+  "appName": "Universal Starter",
+  "webDir": "dist/native",
+  "android": {
+    "allowMixedContent": false
+  },
+  "plugins": {
+    "LocalNotifications": {
+      "presentationOptions": ["badge", "sound", "alert"]
+    }
+  }
+}

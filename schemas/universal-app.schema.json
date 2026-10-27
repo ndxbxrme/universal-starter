@@ -1,0 +1,94 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "name",
+    "shortName",
+    "appId",
+    "version",
+    "androidVersionCode",
+    "iosBuildNumber",
+    "supportUrl",
+    "websiteUrl",
+    "theme",
+    "targets",
+    "channel"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[^\\u0000-\\u001f<>:\"/\\\\|?*]+$"
+    },
+    "shortName": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 12
+    },
+    "appId": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:\\.[a-z][a-z0-9]*){2,}$"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+    },
+    "androidVersionCode": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 2100000000
+    },
+    "iosBuildNumber": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "supportUrl": {
+      "type": "string",
+      "pattern": "^https://"
+    },
+    "websiteUrl": {
+      "type": "string",
+      "pattern": "^https://"
+    },
+    "theme": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["primary", "background"],
+      "properties": {
+        "primary": {
+          "type": "string",
+          "pattern": "^#[0-9A-Fa-f]{6}$"
+        },
+        "background": {
+          "type": "string",
+          "pattern": "^#[0-9A-Fa-f]{6}$"
+        },
+        "darkPrimary": {
+          "type": "string",
+          "pattern": "^#[0-9A-Fa-f]{6}$"
+        },
+        "darkBackground": {
+          "type": "string",
+          "pattern": "^#[0-9A-Fa-f]{6}$"
+        }
+      }
+    },
+    "targets": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "enum": ["web", "android", "ios", "windows", "macos", "linux"]
+      }
+    },
+    "channel": {
+      "enum": ["dev", "ci", "beta", "production"]
+    }
+  }
+}
