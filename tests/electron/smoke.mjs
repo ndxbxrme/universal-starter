@@ -100,6 +100,10 @@ try {
   ).toBeDisabled();
   await page.getByRole("link", { name: "Diagnostics", exact: true }).click();
   await expect(page.locator("pre").first()).toContainText("electron");
+  await page.reload();
+  await expect(
+    page.getByRole("heading", { name: "Under the surface." }),
+  ).toBeVisible();
   await page.setViewportSize({ width: 700, height: 700 });
   await page.screenshot({ path: "artifacts/desktop-smoke/window.png" });
   expect(errors).toEqual([]);

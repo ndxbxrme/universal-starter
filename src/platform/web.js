@@ -60,7 +60,7 @@ export function createWebPlatform() {
             "Notifications denied. Change permission in browser settings.",
           );
         new Notification(title, { body });
-        return { shown: true };
+        return { requested: true };
       },
     },
     haptics: {
@@ -68,7 +68,7 @@ export function createWebPlatform() {
         if (!navigator.vibrate) unsupported("Vibration is unavailable.");
         if (!navigator.vibrate(durationMs))
           unsupported("The browser declined vibration.");
-        return { vibrated: true };
+        return { requested: true };
       },
     },
     clipboard: {
