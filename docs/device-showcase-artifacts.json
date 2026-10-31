@@ -1,0 +1,37 @@
+{
+  "date": "2026-10-31",
+  "sourceRevision": "02201ae",
+  "note": "Local builds; debug APKs use development signing. AAB unsigned. No publication. Existing user diagnostic heading edit retained.",
+  "artifacts": [
+    {
+      "path": "artifacts/staging/android/universal-starter-0.1.0-android-universal-production.aab",
+      "bytes": 6250900,
+      "sha256": "b3721597b988f93bf0edf96eb2a457ed1689701c6bdac9f778eb673fa2d615a5"
+    },
+    {
+      "path": "artifacts/staging/android-debug/universal-starter-0.1.0-android-universal-dev.apk",
+      "bytes": 10200157,
+      "sha256": "972d9c22cb5044b15bdca7b798e953aa77d2e2a7949fbc3811a2ca9f2a02d14d"
+    },
+    {
+      "path": "artifacts/staging/desktop/universal-starter-0.1.0-linux-x64-dev.AppImage",
+      "bytes": 136440230,
+      "sha256": "e8048c4fe5a32e1cb44fb631c2969655ee0eb2049a2a952f7c5667c7113cf8e4"
+    },
+    {
+      "path": "artifacts/staging/desktop/universal-starter-0.1.0-linux-x64-dev.deb",
+      "bytes": 109240772,
+      "sha256": "b3728a0f998f1eb0de014803379c047cecc22f0620b03321484af3de1559d1c6"
+    },
+    {
+      "path": "artifacts/staging/web/universal-starter-0.1.0-web-universal-dev.tar.gz",
+      "bytes": 46961,
+      "sha256": "7ca0077f1f6ff293029b6cd3ccd94776058194d29f194de09a198023816bbe53"
+    },
+    {
+      "path": "/home/kieron/code/universal-starter-apps/app1/android/app/build/outputs/apk/debug/app-debug.apk",
+      "bytes": 10203673,
+      "sha256": "1ce801051d4c467e17697a17e7d65813f0e6217fc5b6ddaf019636191009fe7f"
+    }
+  ]
+}
