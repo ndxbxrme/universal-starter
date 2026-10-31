@@ -1,8 +1,8 @@
 THIRD-PARTY NOTICES
 
-The app includes the following runtime dependencies. Build/test tools are not shipped as app code. Electron distributions additionally contain LICENSE and LICENSES.chromium.html.
+Installed runtime dependencies, including transitive packages. Build/test tools are not shipped as app code. Electron distributions additionally contain LICENSE and LICENSES.chromium.html. Native platform SDK notices remain in their upstream distributions.
 
-@capacitor/android 8.5.3 (MIT)
+@capacitor/android@8.5.3 (MIT)
 MIT License
 
 Copyright (c) 2017-present Drifty Co.
@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 
-@capacitor/app 8.1.2 (MIT)
+@capacitor/app@8.1.2 (MIT)
 Copyright 2020-present Ionic
 https://ionic.io
 
@@ -52,7 +52,7 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-@capacitor/browser 8.0.5 (MIT)
+@capacitor/browser@8.0.5 (MIT)
 Copyright 2020-present Ionic
 https://ionic.io
 
@@ -77,7 +77,7 @@ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-@capacitor/camera 8.2.6 (MIT)
+@capacitor/camera@8.2.6 (MIT)
 Copyright 2020-present Ionic
 https://ionic.io
 
@@ -102,7 +102,7 @@ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-@capacitor/clipboard 8.0.1 (MIT)
+@capacitor/clipboard@8.0.1 (MIT)
 Copyright 2020-present Ionic
 https://ionic.io
 
@@ -128,7 +128,7 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-@capacitor/core 8.5.3 (MIT)
+@capacitor/core@8.5.3 (MIT)
 MIT License
 
 Copyright (c) 2017-present Drifty Co.
@@ -152,7 +152,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 
-@capacitor/device 8.0.3 (MIT)
+@capacitor/device@8.0.3 (MIT)
 Copyright 2020-present Ionic
 https://ionic.io
 
@@ -178,7 +178,7 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-@capacitor/geolocation 8.2.4 (MIT)
+@capacitor/geolocation@8.2.4 (MIT)
 MIT License
 
 Copyright (c) 2025 Ionic
@@ -202,7 +202,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 
-@capacitor/haptics 8.0.2 (MIT)
+@capacitor/haptics@8.0.2 (MIT)
 Copyright 2020-present Ionic
 https://ionic.io
 
@@ -228,7 +228,7 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-@capacitor/ios 8.5.3 (MIT)
+@capacitor/ios@8.5.3 (MIT)
 MIT License
 
 Copyright (c) 2017-present Drifty Co.
@@ -252,7 +252,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 
-@capacitor/local-notifications 8.3.1 (MIT)
+@capacitor/local-notifications@8.3.1 (MIT)
 Copyright 2020-present Ionic
 https://ionic.io
 
@@ -278,7 +278,7 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-@capacitor/network 8.0.1 (MIT)
+@capacitor/network@8.0.1 (MIT)
 Copyright 2020-present Ionic
 https://ionic.io
 
@@ -304,7 +304,7 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-@capacitor/screen-orientation 8.0.2 (MIT)
+@capacitor/screen-orientation@8.0.2 (MIT)
 Copyright 2020-present Ionic
 https://ionic.io
 
@@ -330,7 +330,7 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-@capacitor/share 8.0.3 (MIT)
+@capacitor/share@8.0.3 (MIT)
 Copyright 2020-present Ionic
 https://ionic.io
 
@@ -354,4 +354,42 @@ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
 LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+@capacitor/synapse@1.0.4 (ISC)
+MIT License
+
+Copyright (c) 2025 Ionic
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+
+tslib@2.8.1 (0BSD)
+Copyright (c) Microsoft Corporation.
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+PERFORMANCE OF THIS SOFTWARE.
 
