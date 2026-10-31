@@ -60,7 +60,10 @@ for (const [key, { root, data }] of [...packages].sort(([a], [b]) =>
       : "See the package distribution for its license.") +
     "\n\n";
 }
-await writeFile("resources/THIRD_PARTY_NOTICES.txt", text.replace(/\r\n?/g, "\n"));
+await writeFile(
+  "resources/THIRD_PARTY_NOTICES.txt",
+  text.replace(/\r\n?/g, "\n"),
+);
 await copyFile("resources/THIRD_PARTY_NOTICES.txt", "public/licenses.txt");
 console.log(
   `Generated notices for ${packages.size} installed runtime packages.`,

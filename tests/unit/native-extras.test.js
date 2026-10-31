@@ -13,6 +13,8 @@ const mocks = vi.hoisted(() => ({
     })),
     cancelRecording: vi.fn(),
   },
+  events: {},
+  remove: vi.fn(),
   geo: {
     checkPermissions: vi.fn(),
     requestPermissions: vi.fn(),
@@ -27,6 +29,7 @@ const mocks = vi.hoisted(() => ({
 vi.mock("@capacitor/core", () => ({
   Capacitor: {
     isPluginAvailable: () => true,
+    getPlatform: () => "ios",
     convertFileSrc: () => "capacitor://localhost/clip.m4a",
   },
   registerPlugin: () => mocks.prefs,
@@ -39,7 +42,14 @@ vi.mock("@capacitor/camera", () => ({
 vi.mock("@capacitor/browser", () => ({ Browser: { open: mocks.browser } }));
 vi.mock("@capacitor/share", () => ({ Share: { share: mocks.share } }));
 vi.mock("@capacitor/device", () => ({ Device: {} }));
-vi.mock("@capacitor/app", () => ({ App: {} }));
+vi.mock("@capacitor/app", () => ({
+  App: {
+    addListener: async (name, listener) => {
+      mocks.events[name] = listener;
+      return { remove: mocks.remove };
+    },
+  },
+}));
 vi.mock("@capacitor/screen-orientation", () => ({ ScreenOrientation: {} }));
 import { createNativeExtras } from "../../src/platform/native-extras.js";
 beforeEach(() => {
@@ -113,4 +123,22 @@ it("uses the native single-photo picker and never requests gallery saving or EXI
       includeMetadata: false,
     }),
   );
+});
+
+it("distinguishes iOS permission-dialog inactivity from actual backgrounding", async () => {
+  const received = vi.fn();
+  const stop = createNativeExtras().appState.subscribe(received);
+  mocks.events.appStateChange({ isActive: false });
+  expect(received).toHaveBeenLastCalledWith({
+    isActive: false,
+    isBackground: false,
+  });
+  mocks.events.pause();
+  expect(received).toHaveBeenLastCalledWith({
+    isActive: false,
+    isBackground: true,
+  });
+  stop();
+  await Promise.resolve();
+  expect(mocks.remove).toHaveBeenCalledTimes(2);
 });

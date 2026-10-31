@@ -70,6 +70,16 @@ test("drag follows pointer, short drags snap back, cancellation and reverse rele
   await viewport.focus();
   await page.keyboard.press("ArrowRight");
   await expect(status).toHaveText("02 / 03");
+  await expect
+    .poll(() =>
+      track.evaluate((n) =>
+        Math.abs(
+          new DOMMatrixReadOnly(getComputedStyle(n).transform).m41 +
+            n.getBoundingClientRect().width,
+        ),
+      ),
+    )
+    .toBeLessThan(2);
   await page.mouse.move(x, y);
   await page.mouse.down();
   await page.mouse.move(b.x + 25, y, { steps: 10 });
@@ -86,6 +96,56 @@ test("drag follows pointer, short drags snap back, cancellation and reverse rele
   });
   await page.mouse.up();
   await expect(status).toHaveText("01 / 03");
+  await expect
+    .poll(() =>
+      track.evaluate((n) =>
+        Math.abs(new DOMMatrixReadOnly(getComputedStyle(n).transform).m41),
+      ),
+    )
+    .toBeLessThan(2);
+  await track.evaluate((n) => {
+    n.style.transitionDuration = "2s";
+  });
+  await viewport.focus();
+  await page.keyboard.press("ArrowRight");
+  await expect
+    .poll(() =>
+      track.evaluate((n) =>
+        Math.abs(new DOMMatrixReadOnly(getComputedStyle(n).transform).m41),
+      ),
+    )
+    .toBeGreaterThan(5);
+  await page.mouse.move(x, y);
+  await viewport.evaluate((n) =>
+    n.addEventListener(
+      "pointerdown",
+      () => {
+        n.dataset.beforeDrag = String(
+          new DOMMatrixReadOnly(
+            getComputedStyle(n.querySelector(".carousel-track")).transform,
+          ).m41,
+        );
+      },
+      { capture: true, once: true },
+    ),
+  );
+  await page.mouse.down();
+  const frozen = await track.evaluate(
+    (n) => new DOMMatrixReadOnly(getComputedStyle(n).transform).m41,
+  );
+  const beforeDown = Number(await viewport.getAttribute("data-before-drag"));
+  expect(Math.abs(frozen - beforeDown)).toBeLessThan(2);
+  await page.mouse.move(x - 30, y);
+  const dragged = await track.evaluate(
+    (n) => new DOMMatrixReadOnly(getComputedStyle(n).transform).m41,
+  );
+  expect(Math.abs(dragged - frozen + 30)).toBeLessThan(3);
+  await viewport.dispatchEvent("pointercancel", {
+    pointerId: 1,
+    isPrimary: true,
+  });
+  await page.mouse.up();
+  await expect(status).toHaveText("02 / 03");
 });
 test("audio records a generated test signal, plays locally, exports and discards", async ({
   page,

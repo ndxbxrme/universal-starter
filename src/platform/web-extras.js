@@ -135,7 +135,10 @@ export function createWebExtras({ desktop = false } = {}) {
       }),
       subscribe(listener) {
         const update = () =>
-          listener({ isActive: document.visibilityState === "visible" });
+          listener({
+            isActive: document.visibilityState === "visible",
+            isBackground: document.hidden,
+          });
         document.addEventListener("visibilitychange", update);
         return () => document.removeEventListener("visibilitychange", update);
       },

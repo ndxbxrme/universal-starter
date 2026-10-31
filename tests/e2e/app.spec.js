@@ -32,6 +32,18 @@ test("theme persists, carousel supports pointer and keyboard, offline shell rema
   await slide.focus();
   await page.keyboard.press("ArrowRight");
   await expect(slide).toContainText("02 / 03");
+  await expect
+    .poll(() =>
+      slide
+        .locator(".carousel-track")
+        .evaluate((n) =>
+          Math.abs(
+            new DOMMatrixReadOnly(getComputedStyle(n).transform).m41 +
+              n.getBoundingClientRect().width,
+          ),
+        ),
+    )
+    .toBeLessThan(2);
   const bounds = await slide.boundingBox();
   await page.mouse.move(bounds.x + bounds.width - 20, bounds.y + 30);
   await page.mouse.down();

@@ -164,9 +164,18 @@ export function createNativeExtras() {
     appState: {
       getInfo: () => App.getState(),
       subscribe(listener) {
-        const handle = App.addListener("appStateChange", listener);
+        const ios = Capacitor.getPlatform() === "ios";
+        const handles = [
+          App.addListener("appStateChange", ({ isActive }) =>
+            listener({ isActive, isBackground: !ios && !isActive }),
+          ),
+          App.addListener("pause", () =>
+            listener({ isActive: false, isBackground: ios }),
+          ),
+        ];
         return () => {
-          handle.then((h) => h.remove());
+          for (const handle of handles)
+            handle.then((subscription) => subscription.remove());
         };
       },
     },

@@ -1,3 +1,4 @@
+import { shouldSuspend } from "../../src/app/lifecycle.js";
 import { it, expect } from "vitest";
 import { locationResult, locationError } from "../../src/platform/location.js";
 import { mapsUrl } from "../../src/platform/web-extras.js";
@@ -44,4 +45,17 @@ it("snaps short drags back, respects release direction/velocity and clamps edges
   expect(snapIndex(1, -120, 0.8, 400, 3)).toBe(1);
   expect(snapIndex(0, 200, 1, 400, 3)).toBe(0);
   expect(snapIndex(2, -200, -1, 400, 3)).toBe(2);
+});
+
+it("lets foreground permission requests finish but suspends GPS on backgrounding", () => {
+  expect(shouldSuspend({ isActive: false, isBackground: false }, true)).toBe(
+    false,
+  );
+  expect(shouldSuspend({ isActive: false, isBackground: true }, true)).toBe(
+    true,
+  );
+  expect(shouldSuspend({ isActive: false, isBackground: false })).toBe(true);
+  expect(shouldSuspend({ isActive: true, isBackground: false }, true)).toBe(
+    false,
+  );
 });

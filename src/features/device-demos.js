@@ -1,3 +1,4 @@
+import { shouldSuspend } from "../app/lifecycle.js";
 import { normalizeError } from "../platform/contract.js";
 const node = (tag, text, cls) => {
   const n = document.createElement(tag);
@@ -20,13 +21,13 @@ const failure = (output, error) => {
   const e = normalizeError(error);
   output.textContent = `${e.code}: ${e.message}`;
 };
-function lifecycle(platform, callback) {
+function lifecycle(platform, callback, backgroundOnly = false) {
   const hidden = () => {
     if (document.hidden) callback();
   };
   document.addEventListener("visibilitychange", hidden);
-  const unsubscribe = platform.appState.subscribe(({ isActive }) => {
-    if (!isActive) callback();
+  const unsubscribe = platform.appState.subscribe((state) => {
+    if (shouldSuspend(state, backgroundOnly)) callback();
   });
   return () => {
     document.removeEventListener("visibilitychange", hidden);
@@ -123,13 +124,17 @@ export function locationPanel(platform, caps) {
   const controls = node("div", null, "controls");
   controls.append(current, watch, halt, clear, map);
   root.append(controls, output);
-  const unbind = lifecycle(platform, () => {
-    stop().catch((e) => failure(output, e));
-    position = null;
-    map.disabled = true;
-    output.textContent =
-      "Location cleared; updates stopped while the app is inactive.";
-  });
+  const unbind = lifecycle(
+    platform,
+    () => {
+      stop().catch((e) => failure(output, e));
+      position = null;
+      map.disabled = true;
+      output.textContent =
+        "Location cleared; updates stopped while the app is in the background.";
+    },
+    true,
+  );
   return {
     node: root,
     dispose() {
