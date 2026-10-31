@@ -1,5 +1,7 @@
 # Final verification record
 
+Device-showcase extension verification (GPS/native preferences/audio/etc.) is recorded separately in [device-showcase-verification.md](device-showcase-verification.md). The original dated results and artifact checksums below are historical, including their original zero-advisory audit; the new full audit currently reports build-tool findings.
+
 Verification date: 27 October 2026. Host: Ubuntu Linux x64. Implementation phases 0–8 were followed in order; all checks feasible on this host were run, with the remaining platform, hardware and account checks explicitly blocked. This is not a claim that every platform has passed acceptance. No external account settings, secrets, releases, deployments or store listings were changed.
 
 Source build revision: `f7c5e43` (later commits update verification documentation only). Tested Node 24.13.0, npm 11.6.2, Vite 8.3.5, Capacitor 8.5.3, Electron 45.1.0, electron-builder 26.18.0, JDK 21.0.13+9, Gradle 8.14.3, AGP 8.13.0, Android API 36 and actionlint 1.7.12. See [toolchain.md](toolchain.md) for exact dependency/plugin/SDK versions, installation and primary sources.

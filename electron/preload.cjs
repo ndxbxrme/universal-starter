@@ -1,5 +1,6 @@
 const { contextBridge, ipcRenderer } = require("electron");
 const methods = new Set([
+  "audioExport",
   "device",
   "capabilities",
   "notifications",

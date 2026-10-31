@@ -129,8 +129,8 @@ test("tablet layout, file metadata and subpath manifest", async ({ page }) => {
     mimeType: "text/plain",
     buffer: Buffer.from("hello"),
   });
-  await expect(page.getByRole("status")).toContainText("files: success");
-  await expect(page.getByRole("status")).toContainText('"size":5');
+  await expect(page.locator("#result")).toContainText("files: success");
+  await expect(page.locator("#result")).toContainText('"size":5');
   const manifestUrl = new URL("manifest.webmanifest", page.url()).href;
   const response = await page.request.get(manifestUrl);
   expect(response.ok()).toBe(true);

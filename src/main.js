@@ -1,21 +1,24 @@
+import { createCarousel } from "./app/carousel.js";
+import {
+  locationPanel,
+  audioPanel,
+  cameraPanel,
+  preferencesPanel,
+  extraDemos,
+} from "./features/device-demos.js";
 import "./styles/main.css";
 import "./styles/branding.css";
 import licenseNotices from "../resources/THIRD_PARTY_NOTICES.txt?raw";
 import { getPlatform } from "./platform/index.js";
 import { normalizeError } from "./platform/contract.js";
-import {
-  routes,
-  routeFromHash,
-  loadTheme,
-  applyTheme,
-  nextCard,
-} from "./app/state.js";
+import { routes, routeFromHash, loadTheme, applyTheme } from "./app/state.js";
 
 const platform = await getPlatform();
 const build = __BUILD__;
 const log = [];
 let card = 0;
 let renderRevision = 0;
+let cleanupView = () => {};
 let online = (await platform.network.getStatus()).connected;
 const titles = {
   home: "Your app. Everywhere.",
@@ -108,6 +111,8 @@ platform.network.subscribe((status) => {
   record(online ? "Network connected" : "Network offline");
 });
 async function render() {
+  cleanupView();
+  cleanupView = () => {};
   const revision = ++renderRevision;
   const route = routeFromHash(location.hash);
   for (const link of document.querySelectorAll("nav a")) {
@@ -247,45 +252,28 @@ async function render() {
       "A little movement",
       "Swipe or drag the card, or use the arrow buttons.",
     );
-    const slide = el("div", undefined, "slide");
-    slide.tabIndex = 0;
-    slide.setAttribute("aria-label", "Carousel; use left and right arrow keys");
-    const names = [
-      "One shared canvas",
-      "Native where it matters",
-      "Ready for your next idea",
-    ];
-    const update = () => {
-      slide.textContent = `0${card + 1} / 03 · ${names[card]}`;
-    };
-    const move = (delta) => {
-      card = nextCard(card, delta, names.length);
-      update();
-    };
-    let start;
-    slide.addEventListener("pointerdown", (event) => {
-      start = event.clientX;
-      slide.setPointerCapture(event.pointerId);
+    const { viewport, controls } = createCarousel({
+      index: card,
+      onChange: (index) => {
+        card = index;
+      },
     });
-    slide.addEventListener("pointerup", (event) => {
-      if (Math.abs(event.clientX - start) > 40)
-        move(event.clientX < start ? 1 : -1);
-    });
-    slide.addEventListener("keydown", (event) => {
-      if (event.key === "ArrowRight") move(1);
-      if (event.key === "ArrowLeft") move(-1);
-    });
-    update();
-    const controls = el("div", undefined, "controls");
-    controls.append(
-      button("← Previous", () => move(-1)),
-      button("Next →", () => move(1)),
-    );
-    carousel.append(slide, controls);
+    carousel.append(viewport, controls);
     append(carousel);
     const grid = el("div", undefined, "grid");
     const caps = await platform.capabilities.list();
+    if (revision !== renderRevision) return;
+    const gps = locationPanel(platform, caps);
+    const audio = audioPanel(platform, caps);
+    const camera = cameraPanel(platform, caps);
+    append(gps.node, audio.node, camera.node);
+    cleanupView = () => {
+      gps.dispose();
+      audio.dispose();
+      camera.dispose();
+    };
     const demos = [
+      ...extraDemos(platform),
       [
         "haptics",
         "Feel the feedback",
@@ -414,7 +402,8 @@ async function render() {
       el("pre", licenseNotices),
     );
     about.append(licenses);
-    append(theme, about);
+    const preferences = await preferencesPanel(platform);
+    append(theme, preferences, about);
   }
 }
 window.addEventListener("hashchange", () => {

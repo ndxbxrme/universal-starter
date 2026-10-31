@@ -1,3 +1,4 @@
+import { createNativeExtras } from "./native-extras.js";
 import { Capacitor } from "@capacitor/core";
 import { App } from "@capacitor/app";
 import { Device } from "@capacitor/device";
@@ -11,6 +12,7 @@ import { capability } from "./capabilities.js";
 import { PlatformError } from "./contract.js";
 /** Official plugins only. File input uses the native webview's system picker. */
 export async function createCapacitorPlatform() {
+  const { capabilities: extraCapabilities, ...features } = createNativeExtras();
   const id = Capacitor.getPlatform();
   if (id === "android")
     await App.addListener("backButton", async ({ canGoBack }) => {
@@ -20,6 +22,7 @@ export async function createCapacitorPlatform() {
       else await App.exitApp();
     });
   return {
+    ...features,
     id,
     device: {
       async getInfo() {
@@ -40,6 +43,7 @@ export async function createCapacitorPlatform() {
         const notifications = await LocalNotifications.checkPermissions();
         const share = await Share.canShare();
         return {
+          ...(await extraCapabilities()),
           notifications: capability(
             Capacitor.isPluginAvailable("LocalNotifications"),
             notifications.display === "prompt-with-rationale"

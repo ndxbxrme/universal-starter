@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>PreferenceSpecifiers</key>
+	<array>
+		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>Title</key>
+			<string>Location demo</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Prefer high accuracy</string>
+			<key>Key</key>
+			<string>highAccuracy</string>
+			<key>DefaultValue</key>
+			<true/>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Title</key>
+			<string>Distance units</string>
+			<key>Key</key>
+			<string>distanceUnit</string>
+			<key>DefaultValue</key>
+			<string>km</string>
+			<key>Titles</key>
+			<array>
+				<string>Kilometres</string>
+				<string>Miles</string>
+			</array>
+			<key>Values</key>
+			<array>
+				<string>km</string>
+				<string>mi</string>
+			</array>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>FooterText</key>
+			<string>Location is requested only by the app’s location buttons. No background tracking or automatic uploads. OS location permission and approximate access are respected.</string>
+		</dict>
+	</array>
+	<key>StringsTable</key>
+	<string>Root</string>
+</dict>
+</plist>

@@ -23,6 +23,7 @@ protocol.registerSchemesAsPrivileged([
   },
 ]);
 let window;
+let microphoneApproved = false;
 const devUrl = process.env.DESKTOP_DEV_URL;
 if (devUrl && (app.isPackaged || !/^http:\/\/127\.0\.0\.1:\d+\/$/.test(devUrl)))
   throw new Error(
@@ -51,6 +52,28 @@ async function invoke(event, method, args) {
   }
   try {
     let value;
+    if (method === "audioExport") {
+      const data = Buffer.from(args.data, "base64");
+      if (data.length > 8 * 1024 * 1024) throw new Error("Audio too large");
+      const ext = args.mimeType.includes("mp4")
+        ? "m4a"
+        : args.mimeType.includes("ogg")
+          ? "ogg"
+          : "webm";
+      const chosen = await dialog.showSaveDialog(window, {
+        title: "Save audio recording",
+        defaultPath: `recording.${ext}`,
+        filters: [{ name: "Audio recording", extensions: [ext] }],
+      });
+      if (chosen.canceled || !chosen.filePath)
+        return {
+          ok: false,
+          code: "CANCELLED",
+          message: "Audio save cancelled",
+        };
+      await fs.writeFile(chosen.filePath, data);
+      value = { saved: true, bytes: data.length };
+    }
     if (method === "device")
       value = {
         platform: { win32: "windows", darwin: "macos", linux: "linux" }[
@@ -215,9 +238,55 @@ app
   .whenReady()
   .then(async () => {
     session.defaultSession.setPermissionRequestHandler(
-      (_contents, _permission, callback) => callback(false),
+      (contents, permission, callback, details) => {
+        if (
+          !window ||
+          !policy.microphoneRequest(
+            contents,
+            permission,
+            details,
+            window.webContents,
+            devUrl,
+          )
+        ) {
+          callback(false);
+          return;
+        }
+        dialog
+          .showMessageBox(window, {
+            type: "question",
+            title: "Microphone access",
+            message: "Allow this app to record a local audio note?",
+            detail:
+              "Recording starts only from the audio demo and stops when you stop it or leave the screen. No automatic upload.",
+            buttons: ["Cancel", "Allow microphone"],
+            defaultId: 0,
+            cancelId: 0,
+          })
+          .then(({ response }) => {
+            microphoneApproved = response === 1;
+            callback(microphoneApproved);
+          })
+          .catch(() => callback(false));
+      },
     );
-    session.defaultSession.setPermissionCheckHandler(() => false);
+    session.defaultSession.setPermissionCheckHandler(
+      (contents, permission, origin, details) => {
+        if (
+          !window ||
+          contents !== window.webContents ||
+          permission !== "media" ||
+          details?.mediaType !== "audio" ||
+          details.isMainFrame !== true
+        )
+          return false;
+        return (
+          microphoneApproved &&
+          policy.trusted(contents.getURL(), devUrl) &&
+          policy.sameOrigin(origin, contents.getURL())
+        );
+      },
+    );
     session.defaultSession.on("will-download", (event) =>
       event.preventDefault(),
     );

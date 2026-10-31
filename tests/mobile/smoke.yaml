@@ -12,5 +12,5 @@ appId: ${APP_ID}
 - assertVisible: ".*device: success.*"
 - takeScreenshot: native-device-plugin
 - tapOn: "Diagnostics"
-- assertVisible: "Under the surface."
+- assertVisible: "Under the surface.*"
 - takeScreenshot: native-diagnostics

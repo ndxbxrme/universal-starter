@@ -17,14 +17,32 @@ export function unsupported(reason) {
 }
 export function normalizeError(error) {
   if (error instanceof PlatformError) return error;
-  if (["UNIMPLEMENTED", "UNAVAILABLE"].includes(error?.code))
+  if (
+    error?.name === "NotSupportedError" ||
+    error?.name === "NotFoundError" ||
+    [
+      "UNIMPLEMENTED",
+      "UNAVAILABLE",
+      "UNSUPPORTED",
+      "OS-PLUG-CAMR-0007",
+    ].includes(error?.code)
+  )
     return new PlatformError(
       "UNSUPPORTED",
       "This feature is unavailable on this platform.",
     );
-  if (error?.name === "AbortError" || error?.message === "Share canceled")
+  if (
+    error?.code === "CANCELLED" ||
+    error?.code === "OS-PLUG-CAMR-0006" ||
+    error?.name === "AbortError" ||
+    error?.message === "Share canceled"
+  )
     return new PlatformError("CANCELLED", "Cancelled");
-  if (error?.name === "NotAllowedError" || error?.code === "PERMISSION_DENIED")
+  if (
+    error?.name === "NotAllowedError" ||
+    error?.code === "PERMISSION_DENIED" ||
+    ["OS-PLUG-CAMR-0003", "OS-PLUG-CAMR-0005"].includes(error?.code)
+  )
     return new PlatformError(
       "PERMISSION_DENIED",
       "Permission denied. Review system settings.",

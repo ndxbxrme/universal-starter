@@ -1,6 +1,7 @@
 const path = require("node:path");
 const { realpathSync } = require("node:fs");
 const methods = new Set([
+  "audioExport",
   "device",
   "capabilities",
   "notifications",
@@ -10,7 +11,7 @@ const methods = new Set([
   "share",
 ]);
 const csp =
-  "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'";
+  "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; connect-src 'self'; media-src 'self' blob: data:; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'";
 function trusted(url, devUrl) {
   try {
     const parsed = new URL(url);
@@ -61,6 +62,25 @@ function validate(method, args) {
   if (!args || typeof args !== "object" || Array.isArray(args))
     throw new Error("Expected object");
   const keys = Object.keys(args);
+  if (method === "audioExport") {
+    if (
+      keys.length !== 2 ||
+      !keys.includes("data") ||
+      !keys.includes("mimeType") ||
+      typeof args.data !== "string" ||
+      args.data.length === 0 ||
+      args.data.length > 12 * 1024 * 1024 ||
+      !/^[A-Za-z0-9+/]+={0,2}$/.test(args.data) ||
+      ![
+        "audio/webm",
+        "audio/webm;codecs=opus",
+        "audio/ogg",
+        "audio/ogg;codecs=opus",
+        "audio/mp4",
+      ].includes(args.mimeType)
+    )
+      throw new Error("Invalid audio export");
+  }
   if (method === "clipboard") {
     if (
       keys.length !== 1 ||
@@ -83,4 +103,44 @@ function validate(method, args) {
       throw new Error("Invalid notification");
   }
 }
-module.exports = { trusted, externalAllowed, assetPath, validate, csp };
+function microphoneRequest(
+  contents,
+  permission,
+  details,
+  expectedContents,
+  devUrl,
+) {
+  return (
+    contents === expectedContents &&
+    permission === "media" &&
+    details?.isMainFrame === true &&
+    trusted(details.requestingUrl, devUrl) &&
+    Array.isArray(details.mediaTypes) &&
+    details.mediaTypes.length === 1 &&
+    details.mediaTypes[0] === "audio"
+  );
+}
+function sameOrigin(left, right) {
+  try {
+    const a = new URL(left),
+      b = new URL(right);
+    return (
+      !a.username &&
+      !a.password &&
+      a.protocol === b.protocol &&
+      a.hostname === b.hostname &&
+      a.port === b.port
+    );
+  } catch {
+    return false;
+  }
+}
+module.exports = {
+  sameOrigin,
+  microphoneRequest,
+  trusted,
+  externalAllowed,
+  assetPath,
+  validate,
+  csp,
+};

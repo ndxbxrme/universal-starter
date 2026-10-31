@@ -714,3 +714,74 @@ summary {
   cursor: pointer;
   font-weight: 600;
 }
+
+.carousel-viewport {
+  padding: 0;
+  overflow: hidden;
+  position: relative;
+  cursor: grab;
+}
+.carousel-viewport:active {
+  cursor: grabbing;
+}
+.carousel-track {
+  display: flex;
+  transition: transform 240ms ease;
+  will-change: transform;
+}
+.carousel-track.dragging {
+  transition: none;
+}
+.carousel-item {
+  flex: 0 0 100%;
+  min-width: 0;
+  padding: 64px 28px 76px;
+  box-sizing: border-box;
+}
+.carousel-item:nth-child(2) {
+  background: var(--bg);
+}
+.carousel-status {
+  position: absolute;
+  bottom: 18px;
+  left: 28px;
+  font-size: 13px;
+  letter-spacing: 1px;
+}
+.device-preview {
+  max-width: 100%;
+  max-height: 300px;
+  display: block;
+  border-radius: 12px;
+  margin-top: 16px;
+}
+.feature-output {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.field {
+  display: grid;
+  gap: 8px;
+  margin: 16px 0;
+}
+.field select {
+  font: inherit;
+  padding: 10px;
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+.recording-indicator {
+  font-weight: 650;
+  color: var(--primary);
+}
+@media (prefers-reduced-motion: reduce) {
+  .carousel-track {
+    transition: none;
+  }
+}
+
+[hidden] {
+  display: none !important;
+}

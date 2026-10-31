@@ -1,8 +1,13 @@
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 import { _electron as electron, expect } from "@playwright/test";
 import { mkdir } from "node:fs/promises";
 await mkdir("artifacts/desktop-smoke", { recursive: true });
 const app = await electron.launch({
-  args: process.env.ELECTRON_SMOKE_EXECUTABLE ? [] : ["."],
+  args: [
+    ...(process.env.ELECTRON_SMOKE_EXECUTABLE ? [] : ["."]),
+    "--use-fake-device-for-media-stream",
+  ],
   executablePath: process.env.ELECTRON_SMOKE_EXECUTABLE,
   chromiumSandbox: true,
   timeout: 90000,
@@ -101,12 +106,53 @@ try {
   await page.getByRole("link", { name: "Diagnostics", exact: true }).click();
   await expect(page.locator("pre").first()).toContainText("electron");
   await page.reload();
+  await expect(page.locator("pre").first()).toContainText("electron");
   await expect(
-    page.getByRole("heading", { name: "Under the surface." }),
-  ).toBeVisible();
+    page.getByRole("link", { name: "Diagnostics", exact: true }),
+  ).toHaveAttribute("aria-current", "page");
   await page.setViewportSize({ width: 700, height: 700 });
   await page.screenshot({ path: "artifacts/desktop-smoke/window.png" });
   expect(errors).toEqual([]);
+  await page.context().setOffline(false);
+  await page.getByRole("link", { name: "Interactions", exact: true }).click();
+  const audio = page
+    .getByRole("heading", { name: "Record an audio note" })
+    .locator("..");
+  const outputPath = path.resolve("artifacts/desktop-smoke/audio.webm");
+  await app.evaluate(({ dialog }, outputPath) => {
+    globalThis.audioPermissionPrompts = 0;
+    dialog.showMessageBox = async () => {
+      globalThis.audioPermissionPrompts++;
+      return { response: 1 };
+    };
+    dialog.showSaveDialog = async () => ({
+      canceled: false,
+      filePath: outputPath,
+    });
+  }, outputPath);
+  await audio
+    .getByRole("button", { name: "Start recording", exact: true })
+    .click();
+  await expect(audio).toContainText("microphone active");
+  expect(
+    await app.evaluate(() => globalThis.audioPermissionPrompts),
+  ).toBeGreaterThan(0);
+  await page.waitForTimeout(650); // Receive generated audio samples through the real recorder.
+  await audio
+    .getByRole("button", { name: "Stop recording", exact: true })
+    .click();
+  await expect(audio).toContainText("Recorded");
+  await expect
+    .poll(() => audio.locator("audio").evaluate((n) => n.readyState))
+    .toBeGreaterThan(0);
+  await audio.getByRole("button", { name: "Save / export recording" }).click();
+  await expect(audio).toContainText("Export requested");
+  expect((await readFile(outputPath)).length).toBeGreaterThan(0);
+  await audio.getByRole("button", { name: "Discard recording" }).click();
+  await expect(audio.locator("audio")).toBeHidden();
+  console.log(
+    "PASS: Electron generated-input audio recording, local playback, bounded IPC save and discard (microphone hardware and OS dialogs unverified).",
+  );
   console.log(
     "PASS: Electron preload isolation, IPC validation, native clipboard, dialog mocks, navigation/window policy, offline UI and clean exit. Dialog selection is mocked; no OS dialog automation claimed.",
   );

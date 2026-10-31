@@ -23,6 +23,12 @@ module.exports = {
     target: ["dmg", "zip"],
     icon: "resources/generated/icon.icns",
     hardenedRuntime: true,
+    extendInfo: {
+      NSMicrophoneUsageDescription:
+        "Record a local audio note only when you press Start recording.",
+    },
+    entitlements: "resources/entitlements.mac.plist",
+    entitlementsInherit: "resources/entitlements.mac.plist",
     notarize:
       process.env.DESKTOP_SIGN === "1" && process.env.DESKTOP_NOTARIZE === "1",
   },

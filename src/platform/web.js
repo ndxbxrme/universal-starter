@@ -1,6 +1,9 @@
+import { createWebExtras } from "./web-extras.js";
 import { capability } from "./capabilities.js";
 import { PlatformError, unsupported } from "./contract.js";
 export function createWebPlatform() {
+  const extras = createWebExtras();
+  const { capabilities: extraCapabilities, ...features } = extras;
   const secure = globalThis.isSecureContext;
   const network = {
     getStatus: async () => ({
@@ -19,6 +22,7 @@ export function createWebPlatform() {
     },
   };
   return {
+    ...features,
     id: "web",
     device: {
       getInfo: async () => ({
@@ -30,6 +34,7 @@ export function createWebPlatform() {
     },
     capabilities: {
       list: async () => ({
+        ...(await extraCapabilities()),
         notifications: capability(
           secure && "Notification" in globalThis,
           globalThis.Notification?.permission === "default"

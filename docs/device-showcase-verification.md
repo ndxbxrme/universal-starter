@@ -1,0 +1,7 @@
+# Device showcase verification — 31 October 2026
+
+This extension implements GPS, drag-following carousel, native preferences, audio recording on web/mobile/desktop and the extra device demos described in device-showcase.md. It preserves the original single vanilla SPA, platform boundary, security guards and unsigned development flow. Android/iOS remain native implementations; unit fixtures and generated audio are not claimed as device integration.
+
+Current completed checks: 49 unit tests; 19 browser cases plus one intentional desktop touch skip; Linux test-build and packaged generated-input audio/security/offline smoke; Android debug APK and unsigned AAB compilation; iOS SPM sync, project/plist/resource/entitlement validation. Final isolated Android lint and final-source artifact refresh are underway; their exact results and hashes will be appended before handoff. No real microphone was recorded by these tests. The phone is absent from ADB/mDNS, so physical GPS/audio/native-Settings acceptance remains BLOCKED.
+
+The full dependency audit has changed since the October 27 baseline: 20 moderate build-tool findings in glob/minimatch dependency chains. Runtime-only audit passes with zero vulnerabilities. The full audit/CI security gate remains FAIL; no forced downgrades, audit suppression or weakened CI permissions were applied. Upstream-compatible remediation is still needed before claiming a clean full audit.

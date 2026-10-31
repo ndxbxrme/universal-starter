@@ -55,3 +55,39 @@ it("confines protocol reads including symlinks", () => {
     expect(() => policy.assetPath("app://bundle/leak", root)).toThrow();
   }
 });
+it("allows only trusted top-frame audio permission requests", () => {
+  const contents = {};
+  const details = {
+    isMainFrame: true,
+    requestingUrl: "app://bundle/index.html#/interactions",
+    mediaTypes: ["audio"],
+  };
+  expect(policy.microphoneRequest(contents, "media", details, contents)).toBe(
+    true,
+  );
+  for (const invalid of [
+    { ...details, isMainFrame: false },
+    { ...details, requestingUrl: "https://evil.test" },
+    { ...details, mediaTypes: ["video"] },
+    { ...details, mediaTypes: ["audio", "video"] },
+  ])
+    expect(policy.microphoneRequest(contents, "media", invalid, contents)).toBe(
+      false,
+    );
+  expect(policy.microphoneRequest({}, "media", details, contents)).toBe(false);
+  expect(
+    policy.microphoneRequest(contents, "geolocation", details, contents),
+  ).toBe(false);
+});
+it("bounds audio exports and rejects arbitrary paths and MIME types", () => {
+  expect(() =>
+    policy.validate("audioExport", { data: "YWJj", mimeType: "audio/webm" }),
+  ).not.toThrow();
+  for (const args of [
+    { data: "YWJj", mimeType: "text/html" },
+    { data: "YWJj", mimeType: "audio/webm", path: "/etc/passwd" },
+    { data: "!", mimeType: "audio/webm" },
+    { data: "a".repeat(12 * 1024 * 1024 + 1), mimeType: "audio/webm" },
+  ])
+    expect(() => policy.validate("audioExport", args)).toThrow();
+});

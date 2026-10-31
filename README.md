@@ -25,6 +25,8 @@ Android/iOS projects are included and equal-priority. This Linux host builds And
 
 Customize universal-app.config.json, validate/sync metadata and regenerate the single icon master. Identifiers require a guided reviewed migration; client credentials can be onboarded later without recreating projects. V1 documents future generator/updater design but does not implement it. Automatic desktop updates are disabled until trusted signed updates are configured/tested. Code and original artwork use MIT; runtime dependency notices are bundled in Settings and resources/THIRD_PARTY_NOTICES.txt.
 
+The [device showcase](docs/device-showcase.md) adds foreground GPS, finger-following carousel snapping, native system preferences, camera/photos, battery/language/orientation/motion/lifecycle and local audio recording/playback/export on web, Android/iOS and Electron. Native features need a rebuild/reinstall; support and permissions are reported honestly.
+
 Documentation:
 
 - [Getting started](docs/getting-started.md), [commands and flags](docs/commands.md), [tested toolchain](docs/toolchain.md), [development](docs/development.md)

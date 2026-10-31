@@ -1,5 +1,8 @@
 import { it, expect, vi } from "vitest";
 vi.mock("@capacitor/core", () => ({
+  registerPlugin: () => ({
+    getPreferences: async () => ({ highAccuracy: true, distanceUnit: "km" }),
+  }),
   Capacitor: { getPlatform: () => "ios", isPluginAvailable: () => true },
 }));
 vi.mock("@capacitor/app", () => ({
@@ -26,6 +29,20 @@ vi.mock("@capacitor/local-notifications", () => ({
 vi.mock("@capacitor/share", () => ({
   Share: { canShare: async () => ({ value: true }) },
 }));
+vi.mock("@capacitor/geolocation", () => ({
+  Geolocation: {
+    checkPermissions: async () => ({
+      location: "prompt",
+      coarseLocation: "prompt",
+    }),
+  },
+}));
+vi.mock("@capacitor/camera", () => ({
+  Camera: {},
+  MediaTypeSelection: { Photo: 0 },
+}));
+vi.mock("@capacitor/browser", () => ({ Browser: {} }));
+vi.mock("@capacitor/screen-orientation", () => ({ ScreenOrientation: {} }));
 import { createCapacitorPlatform } from "../../src/platform/capacitor.js";
 it("maps denied native permissions without prompting or claiming unsupported", async () => {
   const adapter = await createCapacitorPlatform();
