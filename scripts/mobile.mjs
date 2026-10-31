@@ -8,8 +8,7 @@ import {
   rmSync,
   mkdirSync,
 } from "node:fs";
-import { createInterface } from "node:readline/promises";
-import { stdin, stdout } from "node:process";
+import { pairAndroid, resolveAdbDevice } from "./android-wireless.mjs";
 import {
   run,
   requireAndroid,
@@ -20,8 +19,15 @@ import {
 } from "./lib.mjs";
 const config = JSON.parse(readFileSync("universal-app.config.json"));
 const action = process.argv[2];
+let selectedDevice;
+function deviceArgs() {
+  selectedDevice ||= resolveAdbDevice(
+    option("device") || process.env.ANDROID_SERIAL,
+  );
+  return ["-s", selectedDevice];
+}
 function adb(args) {
-  run("adb", [...(option("device") ? ["-s", option("device")] : []), ...args]);
+  run("adb", [...deviceArgs(), ...args]);
 }
 function sync(target) {
   run("npm", ["run", "build"]);
@@ -39,17 +45,6 @@ function safeNative() {
       "Release safeguard: native server URL remains; run cap:sync.",
     );
 }
-export function validateAddress(address) {
-  if (
-    !/^[a-zA-Z0-9.-]+:\d{1,5}$/.test(address) ||
-    Number(address.split(":")[1]) > 65535 ||
-    Number(address.split(":")[1]) < 1
-  )
-    throw new Error(
-      "Enter host:port from the phone’s Wireless debugging settings.",
-    );
-  return address;
-}
 cli(async () => {
   applyReferences();
   if (process.argv.includes("--help")) {
@@ -65,25 +60,12 @@ cli(async () => {
   }
   if (action === "pair") {
     requireTool("adb", ["version"]);
-    const prompt = createInterface({ input: stdin, output: stdout });
-    try {
-      const pairing = validateAddress(
-        await prompt.question("Phone pairing address (host:PAIRING_PORT): "),
-      );
-      run("adb", ["pair", pairing]);
-      const connection = validateAddress(
-        await prompt.question("Phone debugging address (host:DEBUG_PORT): "),
-      );
-      run("adb", ["connect", connection]);
-      run("adb", ["devices", "-l"]);
-    } finally {
-      prompt.close();
-    }
+    await pairAndroid();
     return;
   }
   if (["devices", "install", "logs"].includes(action)) {
     requireTool("adb", ["version"]);
-    if (action === "devices") adb(["devices", "-l"]);
+    if (action === "devices") run("adb", ["devices", "-l"]);
     if (action === "install") {
       const apk = "android/app/build/outputs/apk/debug/app-debug.apk";
       if (!existsSync(apk))
@@ -94,12 +76,7 @@ cli(async () => {
       const { spawnSync } = await import("node:child_process");
       const result = spawnSync(
         "adb",
-        [
-          ...(option("device") ? ["-s", option("device")] : []),
-          "shell",
-          "pidof",
-          config.appId,
-        ],
+        [...deviceArgs(), "shell", "pidof", config.appId],
         { encoding: "utf8" },
       );
       const pid = result.stdout?.trim();
@@ -152,6 +129,7 @@ cli(async () => {
       throw new Error(
         "Supply your private LAN interface: npm run dev:android -- --host LAN_IP --device ADB_SERIAL. Never expose Vite or ADB on a public network.",
       );
+    deviceArgs();
     const path = "android/app/src/main/assets/capacitor.config.json";
     const sourceManifest = "android/app/src/debug/AndroidManifest.xml";
     const stagedManifest = liveManifest(
