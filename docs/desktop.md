@@ -1,17 +1,75 @@
-# Desktop
+# Run and package the desktop app
 
-Electron 45 uses a sandboxed, isolated renderer with Node disabled. The shared SPA calls a versioned preload contract; main validates sender, method and argument shapes. Files are selected using a native dialog; only metadata returns to the renderer. A native application/Edit/View/Help menu is included. Navigation, new windows, downloads, permissions and filesystem protocol reads are restricted. Support opens only the configured HTTPS support path in the system browser.
+The desktop app uses the same screens, with native menus, file dialogs and local audio recording. Start unsigned during development. Before a client buys a certificate or signing service, agree a compatible arrangement using [Desktop signing](client-desktop.md).
 
-Run `npm run dev:desktop` to start a loopback Vite server and Electron. Port 5173 must be free. Stop with Ctrl+C. `npm run test:desktop` builds the production assets and launches a test-build window; Linux needs a display (`xvfb-run -a npm run test:desktop` on headless CI). It verifies sandbox/preload isolation, actual clipboard IPC, mocked native dialog selection/cancellation, argument validation, blocked navigation/new windows, offline navigation and clean exit. Mocks do not prove a physical OS dialog was clicked.
+## Start a development session
 
-`npm run build:desktop` packages for the host. Explicit `build:desktop:win`, `build:desktop:mac`, `build:desktop:linux` require matching hosts; use CI for other systems. Default host architecture is selected (x64 on this Linux machine). To add arm64, use electron-builder's --arm64 on an appropriate runner and test that artifact separately. Outputs in artifacts/desktop: Windows NSIS EXE, macOS DMG/ZIP, Linux AppImage/DEB. File names carry app/version/OS/architecture/channel. Source assets always come from dist/native; Pages base paths are excluded.
+From the project root with Node 24 and dependencies installed:
 
-Unsigned builds work without credentials. Linux AppImages may require libfuse2 to mount; use the AppImage's `--appimage-extract-and-run` mode when FUSE is unavailable. Install a DEB with your package manager and inspect its package contents before distribution. Windows/macOS default packages are unsigned and may show security warnings. No warning-free experience is promised.
+```sh
+npm run dev:desktop
+```
 
-Signing is opt-in with DESKTOP_SIGN=1 and beta/production channel (default production when signing). Windows uses WINDOWS_CERTIFICATE_SHA1 selecting a client-owned certificate/private key in the OS store/provider. PFX files can be validated during onboarding, but passwords are not forwarded to SignTool arguments. macOS uses CSC_NAME selecting an existing Developer ID Application identity in Keychain. Notarization is a separate approved upload: DESKTOP_NOTARIZE=1 plus APPLE_KEYCHAIN_PROFILE (optional APPLE_KEYCHAIN) selects a notarytool Keychain profile. No raw Apple password/API private key is forwarded to subprocess arguments. Default packaging strips signing inputs and remains unsigned. Verify codesign, Gatekeeper/notarization and Authenticode on actual outputs; see credentials.md.
+The helper starts a loopback Vite server and Electron. Port 5173 must be free. Leave the terminal running while you work and press **Ctrl+C** to stop.
 
-Automatic updates are disabled: no updater is installed or configured. Distribute manual signed installers through reviewed GitHub Releases. A future updater should verify a trusted, signed feed and artifacts, handle failed/rolled-back downloads and be tested before enabling. Updating never requires replacing shared JavaScript from an untrusted remote server.
+The renderer is sandboxed and isolated, with Node disabled. Shared screens use a small preload API; the main process validates calls. File selection uses a native dialog and returns metadata rather than unrestricted filesystem access. Navigation, windows, downloads and permissions are restricted. The Help menu can open only the configured HTTPS support path.
 
-On Ubuntu systems that restrict unprivileged user namespaces, Electron needs an administrator-provisioned trusted sandbox helper or an approved user-namespace policy. This machine successfully uses its existing root-owned, mode-4755 `/opt/google/chrome/chrome-sandbox` through CHROME_DEVEL_SANDBOX for local development/tests. Do not make arbitrary downloaded executables setuid. Tests explicitly enable Playwright's Chromium sandbox (its default is disabled) and check `process.sandboxed` through the preload. There is no --no-sandbox production workaround in this starter. The smoke timeout allows 90 seconds for cold Electron startup on slower hosts.
+## Run the smoke test
 
-Audio showcase: renderer MediaRecorder captures only user-requested microphone audio. The permission handler accepts audio-only trusted main-frame requests after confirmation; unrelated permissions stay denied. An allowlisted audioExport IPC validates payload size/type and opens a native save dialog. macOS metadata includes NSMicrophoneUsageDescription and the hardened-runtime audio-input entitlement. Generated-input recording/playback/save regression tests do not verify physical hardware or Windows/macOS OS permissions. See [device-showcase.md](device-showcase.md).
+```sh
+npm run test:desktop
+```
+
+This builds production assets and launches a test-build window. Linux needs a display; headless CI uses `xvfb-run -a npm run test:desktop`. The test checks preload/sandbox isolation, actual clipboard IPC, validated arguments, blocked navigation/windows, offline screens and clean exit. It also tests generated-input audio. Native dialog selection is mocked, so a pass does not prove someone clicked a real OS dialog or recorded a physical microphone.
+
+## Build an installer for your operating system
+
+```sh
+npm run build:desktop
+```
+
+Packages appear in `artifacts/desktop`:
+
+| Build host | Output             |
+| ---------- | ------------------ |
+| Windows    | NSIS EXE installer |
+| macOS      | DMG and ZIP        |
+| Linux      | AppImage and DEB   |
+
+The explicit `npm run build:desktop:win`, `npm run build:desktop:mac` and `npm run build:desktop:linux` commands require their matching hosts. Use the configured CI runners or another appropriate machine for other operating systems.
+
+The host architecture is the default; this Linux development host is x64. An arm64 package needs an appropriate build/runner configuration and its own testing; electron-builder supports an explicit `--arm64` option. Artifact names include app, version, OS, architecture and channel. Desktop assets always come from `dist/native`, not the Pages build.
+
+## Install a test package
+
+Unsigned builds need no production credentials, but Windows and macOS can show security warnings. Agree any unsigned internal test in advance; do not promise warning-free public installation.
+
+Linux AppImages may need FUSE/libfuse2 to mount. The AppImage's `--appimage-extract-and-run` mode is an alternative when FUSE is unavailable. Inspect DEB contents and install through the target distribution's package manager. Test installation, launch, permissions, uninstall and upgrades on the actual target OS.
+
+## Add signing when the client is ready
+
+Follow [Credentials](credentials.md) to validate the intended identity and key access. For beta/production builds, `DESKTOP_SIGN=1` enables signing; the helper defaults a signed build to the production channel if no channel is supplied.
+
+| Target           | Existing supported configuration                                                                                                          |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Windows          | `WINDOWS_CERTIFICATE_SHA1` selects the client's certificate/private key in the OS store/provider                                          |
+| Mac signing      | `CSC_NAME` selects Developer ID Application in Keychain                                                                                   |
+| Mac notarization | Approved `DESKTOP_NOTARIZE=1` upload, with `APPLE_KEYCHAIN_PROFILE` and optional `APPLE_KEYCHAIN` selecting existing Keychain credentials |
+
+Default packaging strips signing inputs and stays unsigned. PFX input validation is available during onboarding, but packaging does not forward PFX passwords as SignTool arguments. Mac notarization likewise uses a saved profile rather than raw password/API-key arguments. Verify Authenticode on Windows and codesign/notarization/Gatekeeper on Mac outputs. The provider or certificate name alone is not proof of a successful signature.
+
+## Try recording
+
+Open **Interactions → Record an audio note**. Electron accepts only user-requested microphone audio from the trusted main frame, after confirmation; camera/screen capture and unrelated permissions remain denied. Export uses a validated, bounded IPC request and a native save dialog.
+
+macOS packaging supplies the microphone purpose string and hardened-runtime audio-input entitlement. Physical inputs and Windows/macOS privacy prompts still need testing on those systems. See [Device showcase](device-showcase.md).
+
+## Ubuntu sandbox setup
+
+Some Ubuntu policies restrict unprivileged user namespaces. Electron then needs an administrator-provisioned trusted sandbox helper or an approved namespace policy. The original machine uses its existing root-owned, mode-4755 `/opt/google/chrome/chrome-sandbox` through `CHROME_DEVEL_SANDBOX`. Do not make arbitrary downloaded executables setuid.
+
+Tests enable Playwright's Chromium sandbox explicitly and check `process.sandboxed` through preload. There is no production `--no-sandbox` workaround. The smoke timeout allows 90 seconds for cold startup on slower machines.
+
+## How users get updates
+
+Automatic updates are disabled; no updater is installed. Distribute approved installers with release notes/checksums and explain the manual update route. A future updater needs trusted signed feeds/artifacts and tests for interruption/recovery before being enabled. Do not replace shared JavaScript from an untrusted remote server.

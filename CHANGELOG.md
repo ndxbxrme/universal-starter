@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Rewrite the main setup/signing/release guides for human readers; add client Apple, Google Play and desktop walkthroughs, an ownership worksheet and a sourced Android Studio illustration. Correct stale iOS permission/privacy guidance.
+
 - Foreground GPS snapshots/watch with approximate permission support, explicit stop/clear and maps handoff.
 - Finger-following carousel with release-position/direction snapping, edge resistance and keyboard/reduced-motion support.
 - Native iOS Settings.bundle and Android application-preferences controls.

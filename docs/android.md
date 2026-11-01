@@ -1,17 +1,85 @@
-# Android
+# Build and test the Android app
 
-Install Android Studio Otter 2025.2.1 or newer, JDK 21, Android SDK API 36, build tools 36 and platform-tools. Set JAVA_HOME, ANDROID_HOME and add platform-tools to PATH. Minimum app API is 24 (Android 7). Wireless pairing without USB needs Android 11+. Generated Capacitor 8.5.3 uses Gradle 8.14.3; the committed wrapper downloads it.
+You can build Android on Linux, Windows or macOS. Begin with a development APK; Play signing can wait. If a client is opening a store account, send [Google Play setup](client-google-play.md). For a phone without USB, follow [wireless Android setup](android-wireless.md).
 
-`npm run build:android` builds/syncs the shared SPA then runs assembleDebug. Output: android/app/build/outputs/apk/debug/app-debug.apk, development-signed by Gradle. `npm run android:open` opens Studio. Native/plugin changes require a sync/rebuild.
+## Install the tools
 
-`npm run build:android:release` runs bundleRelease. Without credentials its AAB is explicitly UNSIGNED and cannot go to Play. With client credentials referenced by ANDROID_KEYSTORE_PATH, ANDROID_KEY_ALIAS, ANDROID_STORE_PASSWORD, ANDROID_KEY_PASSWORD it signs using Gradle. Output: android/app/build/outputs/bundle/release/app-release.aab. Never put credentials in Gradle files or command-line arguments. Verify with `jarsigner -verify -verbose -certs android/app/build/outputs/bundle/release/app-release.aab`. See credentials.md before onboarding.
+Use Android Studio Otter 2025.2.1 or newer, **JDK 21**, **Android SDK API 36**, build-tools 36 and platform-tools. Set `JAVA_HOME` and `ANDROID_HOME`, and put the SDK's `platform-tools` directory on PATH so the terminal can find `adb`. See [the tested toolchain](toolchain.md) for exact versions and local setup history.
 
-Permissions: INTERNET for network status and development, ACCESS_NETWORK_STATE supplied by Network, VIBRATE by Haptics, POST_NOTIFICATIONS for Android 13+ local notifications. The plugin’s exact-alarm permission is explicitly removed by the app manifest; notifications use inexact scheduling. RECEIVE_BOOT_COMPLETED restores scheduled local notifications after reboot, and WAKE_LOCK lets the plugin deliver scheduled notifications while the device sleeps. Foreground ACCESS_COARSE_LOCATION/ACCESS_FINE_LOCATION and user-triggered RECORD_AUDIO support the GPS/audio demos. There is no background location, camera or broad-storage permission; camera/photos use system intents/pickers. System file picker grants only chosen-file access. Back goes through shared history; Home back exits the app. Release manifest blocks cleartext and backups. Local notification denial is explained; enable via Android Settings → Apps → Notifications.
+```sh
+npm run doctor
+adb version
+```
 
-Create/start an API 36 emulator in Studio; verify `adb devices -l`. Install Maestro from https://docs.maestro.dev/getting-started/installing-maestro then run `npm run test:android`. It builds, installs, launches and checks shared navigation plus the real Device plugin via the Interactions screen. Screenshots/test output are in artifacts/android-smoke; logcat is printed for CI capture. An emulator result does not validate physical haptic hardware or wireless pairing.
+The app's minimum Android API is 24 (Android 7). Wireless pairing without USB needs Android 11+. The committed Gradle wrapper downloads Gradle 8.14.3, so a separate global Gradle installation is not required.
 
-Play publication needs a permanent application ID, Play Console client ownership, upload key, Play App Signing enrollment, store listing, data-safety/privacy declarations and tester setup. No store upload occurs in debug builds. Change placeholder ID before publication using the documented guided native migration.
+## Make a development build
 
-The project limits Gradle to two workers and runs Kotlin compilation in the Gradle process to reduce concurrent memory use on small development machines. Build tools 35.0.0 may also be installed by AGP 8.13.0 even with API 36/36.0.0 available. An SDK XML-version warning from AGP with newer command-line tools is not itself a build failure; verify the final Gradle result.
+```sh
+npm run build:android
+```
 
-Device showcase: Geolocation, Camera, Browser and ScreenOrientation plugins plus the local StarterDevice bridge are synced/compiled. Native preferences use SharedPreferences and APPLICATION_PREFERENCES; custom settings links depend on the device Settings app. Audio is native MediaRecorder AAC/M4A in app cache with explicit share/export. Rebuild/reinstall after changes. See [device-showcase.md](device-showcase.md).
+This builds the shared UI, syncs the native project and runs Gradle's debug build. Expected output:
+
+```text
+android/app/build/outputs/apk/debug/app-debug.apk
+```
+
+Gradle signs it with the development key, so it can be installed for testing without a production keystore. `npm run android:open` opens Android Studio. Any new native plugin, manifest change or native source change needs a rebuild and reinstall.
+
+For device selection, installation and live reload, continue with [wireless setup](android-wireless.md). A normal APK bundles its screens and does not need Vite to be running.
+
+## Test an emulator
+
+Create and start an API 36 emulator in Android Studio, then check that it appears as an authorised device:
+
+```sh
+adb devices -l
+```
+
+Install [Maestro](https://docs.maestro.dev/getting-started/installing-maestro), then run:
+
+```sh
+npm run test:android
+```
+
+The test builds, installs, launches, checks shared navigation and calls the real Device plugin. Results/screenshots go to `artifacts/android-smoke`; logcat is printed for CI capture. Emulator behavior is not proof of physical GPS, microphone, haptics or wireless pairing.
+
+## Build a release bundle
+
+First agree the permanent application ID and signing arrangement with the client. Placeholder IDs must be migrated before publication; see [Customisation](customisation.md). [Credentials](credentials.md) explains upload-key ownership and validation.
+
+```sh
+npm run build:android:release
+```
+
+Expected output: `android/app/build/outputs/bundle/release/app-release.aab`.
+
+Without configured credentials, this is explicitly **unsigned** and cannot go to Play. With the approved `ANDROID_KEYSTORE_PATH`, `ANDROID_KEY_ALIAS`, `ANDROID_STORE_PASSWORD` and `ANDROID_KEY_PASSWORD` inputs, Gradle signs the beta/production build. Never put these secrets into Gradle source files or command-line arguments.
+
+Check the actual signature before handing it over:
+
+```sh
+jarsigner -verify -verbose -certs android/app/build/outputs/bundle/release/app-release.aab
+```
+
+Then follow [Store publishing](store-publishing.md) for Play App Signing, listing/privacy tasks, tester setup and approval. An AAB is a store upload, not a directly installable APK.
+
+## Permissions used by this app
+
+| Permission or feature      | Why it is present                                                                |
+| -------------------------- | -------------------------------------------------------------------------------- |
+| Internet / network state   | Network status and development networking                                        |
+| Vibration                  | Haptics demo                                                                     |
+| Notifications              | User-requested local notifications, including the Android 13+ prompt             |
+| Boot-completed / wake lock | Notification plugin restores schedules and delivers them while the device sleeps |
+| Coarse/fine location       | Foreground GPS demo; approximate location is accepted                            |
+| Record audio               | Explicitly requested microphone recording                                        |
+
+The exact-alarm permission is removed; notification schedules are inexact. There is no background-location, app-camera or broad-storage permission. Camera/photos use system intents/pickers; the file picker grants access to the chosen file. Denied notifications can be changed in Android Settings.
+
+Back follows shared navigation; Back from Home exits. Release builds block cleartext networking and backups. The [device showcase](device-showcase.md) explains temporary audio, photo previews, GPS cleanup and native preferences. Android's optional “Additional settings in the app” link depends on the phone's Settings implementation.
+
+## Notes for small development machines
+
+Gradle is limited to two workers and Kotlin runs in the Gradle process to reduce memory pressure. AGP 8.13.0 may install build-tools 35.0.0 even with API/build-tools 36 available. An SDK XML-version warning by itself is not a build failure; read the final Gradle result. See [Troubleshooting](troubleshooting.md) if tools or the emulator fail.

@@ -1,13 +1,47 @@
-# Small-group beta testing
+# Share a test build with a small group
 
-Start with a reviewed version/build number, privacy declarations and release notes; run local/CI verification. Use the beta channel and protected beta environment. A CI artifact is a download, not a store deployment. Keep client accounts and signing material under client ownership.
+Start with a handful of testers and one clearly identified build. Tell them what to try, how to report problems and whether the app contains real or test data. Keep signing keys and account credentials away from testers; they only need an installation route.
 
-Android: debug APK is for development only. For Play internal/closed testing, create a signed upload AAB with the existing client upload key, verify its signature, configure Play App Signing/tester access and complete required declarations in Play Console. For direct small-group beta, an approved signed APK can be produced in Studio/Gradle with the same signing continuity, distributed securely, and installed by testers who accept sideload prompts. Do not distribute an unsigned AAB or call an AAB directly installable. Wireless ADB is a separate developer acceptance check.
+Before sharing, agree the version/build number, test audience, privacy wording and release notes with the client. Run the relevant checks and use the beta channel for a signed beta. Protected CI uses the `beta` environment; a downloaded CI artifact is not automatically a store release.
 
-iOS: simulator .app is not an iPhone IPA. Use a client-signed archive/export for the selected distribution method. TestFlight requires App Store Connect access, matching app registration, processing/privacy/export information and internal/external tester eligibility/review. Development/ad-hoc exports need appropriate registered devices/profiles and device Developer Mode/trust where applicable. Verify on a real iPhone before inviting users.
+## Pick an installation route
 
-Desktop: distribute the target OS installer from a reviewed draft/release with SHA-256 checksums and notes. Windows signing and macOS Developer ID plus notarization reduce installation friction; unsigned builds can show warnings. Linux distro/package compatibility must be tested. Test install, launch/offline use, permissions, resizing, uninstall and upgrade from the prior beta. Updates are manual until a trusted updater is configured/tested.
+| Platform                   | Usual route                                             | What the tester receives                          |
+| -------------------------- | ------------------------------------------------------- | ------------------------------------------------- |
+| Android through Play       | Play internal or closed testing                         | An opt-in link and Play installation instructions |
+| Android direct device test | An approved installable APK or development install      | The APK/instructions; sideload prompts may appear |
+| iPhone/iPad                | TestFlight                                              | An invitation plus Apple's TestFlight app         |
+| Desktop                    | Reviewed installer for the tester's OS and architecture | Installer, release notes and checksum             |
+| Web                        | Reviewed website deployment                             | The actual website address                        |
 
-Web: deploy a reviewed Pages build after enabling Actions-based Pages, share the actual deployment URL, and test a non-root path, browser back, touch, keyboard and offline navigation. Roll back by redeploying the previous reviewed commit. This starter does not install a service worker, so an offline reload is not promised.
+## Android
 
-Collect reports with version/channel/platform and redacted diagnostics; never ask testers to send signing credentials or sensitive files. Promote only after owner approval and all relevant verification checks are PASS or explicitly accepted BLOCKED items.
+For a Play test, the client completes [account setup](client-google-play.md), grants the agreed access and arranges the upload key. The developer builds/verifies a signed AAB, prepares the testing track, uploads it and configures tester access. Follow [Store publishing](store-publishing.md) for that sequence. An AAB cannot be installed directly by tapping the file.
+
+A debug APK is useful for developer/device acceptance but is not the production signing arrangement. A direct signed beta APK needs an agreed key and update continuity. Tell testers about sideload prompts and distribute through a trusted route. The starter's normal release helper produces an AAB; a direct signed APK needs an explicitly reviewed Studio/Gradle build.
+
+For personal accounts subject to Google's closed-test eligibility rules, an internal test does not replace the qualifying closed test. [Google's current requirements](https://support.google.com/googleplay/android-developer/answer/14151465?hl=en).
+
+## iPhone and iPad
+
+Use [Apple setup](client-apple.md), then a signed build uploaded by the Mac operator to App Store Connect. Complete its TestFlight processing and requested beta information before inviting testers. External testers may need a reviewed beta build. Testers install TestFlight and accept the invitation; an ordinary tester does not need to buy developer membership. [Apple's TestFlight overview](https://developer.apple.com/help/app-store-connect/test-a-beta-version/testflight-overview/).
+
+A simulator `.app` is not an iPhone installation file. Development/ad-hoc deployment is a different route with its own device/profile requirements; ask the Mac operator to arrange it deliberately. Test on at least one physical device before treating simulator behavior as device acceptance.
+
+## Desktop
+
+Build for the tester's OS and architecture. Windows signing and Mac Developer ID plus notarization help establish publisher identity; unsigned builds can trigger warnings. Do not tell testers to disable their security protections as a routine installation step. Agree any unsigned internal test in advance.
+
+Try installation, launch, offline screens, microphone permission/playback, window resizing, uninstall and an update from the previous beta. Linux AppImage/DEB compatibility needs testing on the intended distributions. Updates remain manual until a trusted updater is configured and verified.
+
+## Web
+
+Enable and deploy a reviewed [GitHub Pages build](github-actions.md), then share the URL from the deployment result. Test asset loading under the real repository path, navigation/back, touch and keyboard use. This starter has no service worker, so do not promise an offline reload of the website. A rollback redeploys the previous reviewed commit.
+
+## A short message you can send testers
+
+> Please try version [version/build] on [device/platform]. Install it using [approved link or instructions]. We would like you to check [three specific tasks]. Send problems to [support contact], with your device model, OS version, app version and what you were doing. Please hide personal information in screenshots and do not send passwords or private files. This is a test build, so [state any limits or data rules].
+
+Replace every bracketed item before sending. For the new showcase, useful tasks include permission denial/recovery, GPS outdoors, dragging the carousel, recording/playback/discard, and opening native preferences. Do not ask for client/customer data just to test a demo.
+
+Review feedback with the client, record unresolved issues and obtain approval before moving to production. Keep browser, simulator, physical-device and account/signing results distinct in the verification record.

@@ -1,5 +1,7 @@
 # Toolchain
 
+This is the tested-version record, including historical setup notes. For a first run, use [Getting started](getting-started.md); you do not need every native tool to work on the browser app. The dates below describe what was verified then, not a promise that each version is the latest today.
+
 Discovery: 2026-10-27, Linux x64. Existing files: AGENTS.md and CODEX_PROJECT_SPEC.md; no commits or implementation. Both supplied files are preserved.
 
 Node **24.13.0**, npm **11.6.2** are installed and tested for dependency discovery. Node major 24 is pinned in `.nvmrc` and package engines. Dependencies use exact versions and the npm lockfile; CI uses `npm ci`.

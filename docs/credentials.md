@@ -1,10 +1,43 @@
-# Client credentials and late signing onboarding
+# Configure signing for a client app
 
-Unsigned development is the default. `npm run credentials:status` and `npm run doctor` report development, local signing, CI signing and publication separately. PASS requires the stated evidence: environment variables alone never prove a signature. `npm run credentials:status -- --verify-artifacts` actually invokes available signature checks on current artifacts; missing/unsigned artifacts stay NEEDS_SETUP. macOS notarization has its own status. Store access/listing approval is always separate from building/signing.
+This page is for the developer or build administrator. For instructions you can send straight to a client, use [Client: start here](client-start-here.md), then the [Apple](client-apple.md), [Google Play](client-google-play.md) or [desktop](client-desktop.md) walkthrough. The client should not need to understand environment variables to open an account.
 
-Signing assets belong to the client. Establish client-owned recovery contacts, account membership and upload/signing identities from the outset. Store private files outside the checkout with OS access controls and encrypted backups. Utilities do not issue, rotate, import, overwrite or upload private keys. `--help` lists each utility's flags; `--non-interactive` requires environment inputs; `--dry-run` checks the input plan without cryptographic operations/writes. Default setup commands validate only. `--save-references` optionally saves paths/public identifiers outside the repository, under the user's .config/universal-app/credentials directory, scoped by project UUID and app ID, mode 600 on POSIX. Override that external location with UNIVERSAL_CREDENTIALS_FILE. Passwords/tokens are never saved there. On Windows also review user-only NTFS ACLs. Do not transfer this file blindly across clients or machines.
+You can build and test unsigned development versions first. Add production signing when the client has chosen their app identity, arranged account access and approved how private keys will be held. None of the utilities below creates, rotates, imports or uploads a production key for you.
 
-Normal build helpers load these non-secret references; secrets still come from process environment or OS credential stores. Never put passwords in CLI arguments, shell history, universal-app.config.json, .universal-app.json, Gradle properties, logs or build artifacts. Disable shell tracing while handling passwords. On Bash, hidden prompts can populate this terminal's environment without putting values in history:
+## Check which stage is ready
+
+Run these read-only reports from the project root:
+
+```sh
+npm run credentials:status
+npm run doctor
+npm run credentials:status -- --verify-artifacts
+```
+
+The reports separate development, local signing, CI signing and publication. The last command invokes available signature checks on current artifacts. Missing or unsigned artifacts remain `NEEDS_SETUP`; environment variables alone do not prove signing works. macOS notarization is checked separately. Store approval and publication are separate from all of these build checks.
+
+## Agree ownership before moving files
+
+The client owns the accounts and signing assets. Agree recovery contacts, authorised users, backup locations and the signing machine/provider with them. Keep private files outside the checkout, with OS access controls and encrypted backups. Use [the handover worksheet](client-handover.md) for public details and custody records; never fill it with secret values.
+
+## How the setup utilities work
+
+Each `credentials:setup:*` command validates the inputs for its platform. Use `--help` for its options.
+
+| Option                  | What it does                                                                                         |
+| ----------------------- | ---------------------------------------------------------------------------------------------------- |
+| Default interactive run | Prompts for missing inputs; secret prompts do not echo characters                                    |
+| `--non-interactive`     | Requires inputs from the environment or saved references                                             |
+| `--dry-run`             | Checks that inputs are present; does not perform cryptographic checks or write files                 |
+| `--save-references`     | After validation, saves only paths/public identifiers outside the repo; never saves passwords/tokens |
+
+Saved references live under `~/.config/universal-app/credentials`, scoped by project UUID and app ID. Set `UNIVERSAL_CREDENTIALS_FILE` to use another external location. POSIX files use mode 600; on Windows also review user-only NTFS permissions. Do not copy references blindly between clients or machines.
+
+Build helpers load saved references, but passwords still come from the process environment or the OS/provider's credential store. An environment variable is not an encrypted vault.
+
+## Supply passwords without putting them in shell history
+
+Never put passwords in command-line arguments, project config, Gradle properties, logs or artifacts. Turn off shell tracing before handling them. For a Bash signing session, hidden prompts can populate environment variables:
 
 ```sh
 read -rsp 'Keystore password: ' ANDROID_STORE_PASSWORD
@@ -13,22 +46,117 @@ read -rsp 'Key password: ' ANDROID_KEY_PASSWORD
 export ANDROID_KEY_PASSWORD
 ```
 
-In PowerShell use Read-Host -AsSecureString and your approved credential provider; avoid literal passwords in command history. Environment variables are process-scoped, not an encrypted vault. Prefer an OS/provider secret store for long-term custody and clear password variables after the signing session.
+The typed characters are deliberately invisible. In PowerShell, use `Read-Host -AsSecureString` with your approved credential provider rather than literal passwords. Prefer an OS/provider secret store for long-term custody, and clear password variables after the session.
 
-Android: obtain the existing client upload keystore (.jks/.keystore), alias, store password and key password. Supply ANDROID_KEYSTORE_PATH as an absolute external path and ANDROID_KEY_ALIAS, plus the two password variables above. Run `npm run credentials:setup:android -- --non-interactive`, optionally adding --save-references. It exports only the public certificate through keytool, verifies validity dates/RSA size and prints its public SHA-256 fingerprint/expiry. Private-key password correctness is established only by the actual signed build. `npm run build:android:release` signs only with configured inputs, otherwise it explicitly produces an unsigned AAB. Signed release builds require beta/production channel. Verify with jarsigner or the status --verify-artifacts option. Preserve upload-key continuity. The upload key is different from the Google Play App Signing key Google uses for installed production apps; do not replace one thinking it is the other.
+## Android: validate the existing upload keystore
 
-iOS: client Apple Developer team membership, a registered matching bundle ID, a valid signing identity/private key and an appropriate provisioning workflow are required on macOS. Run `npm run credentials:setup:ios`; set APPLE_TEAM_ID, optionally IOS_PROVISIONING_PROFILE (external file) and IOS_EXPORT_OPTIONS (external reviewed plist). The utility checks matching valid keychain identities, optional profile team/expiry, and plist syntax. Automatic signing in Xcode may use account-managed assets; manual signing uses installed certificates/profiles. They do not require identical artifacts, and non-exportable private keys may require the original provider/machine. A .p12 is needed only when securely transferring an exportable identity. Import it through the client's Keychain Access/provisioning workflow, not through command-line password flags. Build/archive/export using `npm run build:ios:release`; verify certificate-backed codesign and a real iPhone/TestFlight installation. Export options determine development, ad-hoc or App Store Connect distribution and must be reviewed with the client.
+Ask for the approved keystore location, alias and secure access to its passwords. If a new app needs its first key, agree creation and custody with the client first; see [Google Play setup](client-google-play.md). If an app already exists, establish continuity before creating anything.
 
-macOS desktop: `npm run credentials:setup:macos` validates CSC_NAME (the client's Developer ID Application identity already in the OS keychain). DESKTOP_SIGN=1 enables signing. Notarization is separate and uploads the signed app to Apple's service: enable DESKTOP_NOTARIZE=1 only with client approval and set APPLE_KEYCHAIN_PROFILE to a preconfigured notarytool keychain profile (optional APPLE_KEYCHAIN external path). Create that profile interactively with `xcrun notarytool store-credentials PROFILE_NAME`; omit password arguments and follow its prompts. The utility can perform a read-only history check through that profile. No raw Apple password/P8 is forwarded to notarization subprocess arguments. Verify codesign, stapling and Gatekeeper assessment on the resulting app. Protected production workflows require both signing and notarization; neither is verified on this Linux host.
+Set these inputs in the signing environment:
 
-Windows: import a client-supplied certificate using Windows Certificate Import Wizard or a supported CSP/KSP/provider; retain client custody and do not assume the private key is exportable. Set WINDOWS_CERTIFICATE_SHA1 to the public thumbprint in CurrentUser/My and run `npm run credentials:setup:windows`. It checks certificate existence, private-key access and expiry. Optional CSC_LINK/CSC_KEY_PASSWORD validate an externally supplied PFX with OpenSSL using an environment password; install OpenSSL for that optional validation. Actual packaging uses the OS certificate store/provider and SHA-256 signing, not password arguments to SignTool. Enable DESKTOP_SIGN=1; verify the NSIS installer with Get-AuthenticodeSignature. Provider support and trust must be proven by a real signed build. A certificate cannot guarantee the absence of SmartScreen/reputation warnings.
+| Input                    | Meaning                                                           |
+| ------------------------ | ----------------------------------------------------------------- |
+| `ANDROID_KEYSTORE_PATH`  | Absolute path to the client's external `.jks` or `.keystore` file |
+| `ANDROID_KEY_ALIAS`      | Name of the upload key inside it                                  |
+| `ANDROID_STORE_PASSWORD` | Password for the keystore                                         |
+| `ANDROID_KEY_PASSWORD`   | Password for the key                                              |
 
-Linux: there is no universal desktop signing identity. Use generated SHA-256 checksums and your client's chosen package/repository/GPG distribution policy where applicable. Do not label an unsigned AppImage/DEB as signed. Web Pages likewise does not require an application signing key.
+Then validate without saving, or add the optional reference flag:
 
-CI: configure protected beta/production environments, required reviewers, reviewed tag restrictions and isolated client-signing runners. These runners keep keystores/certificates/profiles in external protected paths or OS stores; they must never run untrusted PR jobs. Keep provider/keychain access restricted and remove ephemeral build products after collecting only allowlisted artifacts. For a hosted-runner alternative, design/review temporary keychain/P12/profile handling with the client's provider, encrypted transport, restricted file permissions, cleanup and no password arguments/logging before adding it. This starter does not silently upload client keys to hosted runners.
+```sh
+npm run credentials:setup:android -- --non-interactive
+npm run credentials:setup:android -- --non-interactive --save-references
+```
 
-The redacted manifest is generated by `npm run credentials:github:plan -- --repo client/project --environment beta`. It lists variable/secret names and expected formats, never values. Default sync supports only Android password/alias secrets; private key/certificate uploads are rejected. `npm run credentials:github:sync -- --repo client/project --environment beta --dry-run` is non-destructive. Actual sync requires authenticated gh with repo admin access, an existing protected environment, all selected environment inputs, and explicit confirmation of client/project/beta. The --names flag narrows selection; --non-interactive additionally requires --confirm with that exact target. Values are sent through stdin to gh, not CLI arguments or temporary files. Failed/partial sync reports only written names. This implementation has not synchronized any secrets.
+The utility exports only the public certificate through keytool, checks its dates/RSA size, and prints the public SHA-256 fingerprint and expiry. The private-key password is proven only when a real signed build succeeds.
 
-Manual UI path: repository Settings → Environments → beta or production → add the named secrets/variables from the manifest; add required reviewers and tag restrictions. Set RELEASE_ENABLED=true only after approval and runner validation. Never paste private material into issues, PRs, logs or this config. Account settings and privileged secret creation require the account owner's explicit approval.
+```sh
+npm run build:android:release
+npm run credentials:status -- --verify-artifacts
+```
 
-Recovery/handoff: record public certificate fingerprints, expiration dates, store app IDs, responsible client owners, backup locations and revocation contacts without copying private material into the repo. For a lost Android upload key, use Play Console's current upload-key reset process with the client owner; it does not recover/replace the Play App Signing key. For expired/revoked Apple certificates, renew through the client team, update affected profiles and revalidate archives; old profiles/entitlements may no longer match. Rotate compromised CI passwords/tokens in the provider and protected environments, revoke compromised identities as appropriate, remove runner copies and review audit logs before rebuilding. Transfer accounts, runner custody and encrypted recovery assets using the client's approved process, then revoke departed developer access. Do not generate a replacement production identity merely to make a failing build pass.
+With configured signing inputs and a beta/production channel, the release helper signs the AAB. Without them it explicitly produces an **unsigned AAB**, which cannot be uploaded as a Play release. Preserve upload-key continuity. The upload key and Google's Play App Signing key serve different jobs; see [Google's signing explanation](https://developer.android.com/studio/publish/app-signing).
+
+## iOS: validate signing on the Mac
+
+Complete [Apple account setup](client-apple.md), confirm the intended team/Bundle ID and agree automatic versus manual signing. On macOS, run:
+
+```sh
+npm run credentials:setup:ios
+```
+
+`APPLE_TEAM_ID` is required. Optional `IOS_PROVISIONING_PROFILE` points to an external profile. `IOS_EXPORT_OPTIONS` points to an external, reviewed export-options plist and is required by the release helper. The setup utility checks matching valid Keychain identities, optional profile team/expiry and plist syntax. It does not create or install certificates or profiles.
+
+A downloaded `.cer` without the matching private key cannot sign. A password-protected `.p12` is needed only when transferring an exportable identity; use the client's approved Keychain workflow and secure transfer. Automatic/cloud-managed signing and non-exportable keys may use a different arrangement. Do not assume every client can supply the same files.
+
+Once the Mac's signing configuration and export method are ready:
+
+```sh
+npm run build:ios:release
+npm run credentials:status -- --verify-artifacts
+```
+
+Verify a certificate-backed signature, then test the selected iPhone/TestFlight distribution path. The helper does not upload to Apple. See [iOS](ios.md) and [Store publishing](store-publishing.md).
+
+## macOS desktop: signing and notarization are separate
+
+Use `CSC_NAME` to select the client's **Developer ID Application** identity already in Keychain. Validate it with:
+
+```sh
+npm run credentials:setup:macos
+```
+
+Set `DESKTOP_SIGN=1` to enable signing for a beta/production build. Notarization is an additional approved upload to Apple: set `DESKTOP_NOTARIZE=1` and `APPLE_KEYCHAIN_PROFILE` to an existing notarytool profile, with optional `APPLE_KEYCHAIN` for an external keychain path.
+
+To create the profile interactively, the authorised Mac operator runs `xcrun notarytool store-credentials PROFILE_NAME` and follows its prompts, omitting password arguments. Use the agreed credential type and permissions; the setup utility can perform a read-only history check through that profile. No raw Apple password or `.p8` contents are forwarded as subprocess arguments.
+
+Verify codesign, the stapled notarization ticket and Gatekeeper assessment on the resulting app. Protected production workflows require both signing and notarization. These operations require a Mac and account access; none was verified on this Linux host. [Client desktop guide](client-desktop.md).
+
+## Windows: validate provider/private-key access
+
+Choose a provider compatible with the existing Windows certificate-store signing path before purchase. The client imports an exportable certificate through Windows Certificate Import Wizard or configures the supported CSP/KSP/provider. Do not assume a hardware/provider key can be exported.
+
+Set `WINDOWS_CERTIFICATE_SHA1` to the public certificate thumbprint in `CurrentUser/My`, then run:
+
+```sh
+npm run credentials:setup:windows
+```
+
+It checks certificate existence, private-key access and expiry. Optional `CSC_LINK` and `CSC_KEY_PASSWORD` validate an external PFX through OpenSSL with an environment password; this optional validation requires OpenSSL. Actual packaging uses the OS certificate store/provider and SHA-256 signing, not password arguments to SignTool.
+
+Enable `DESKTOP_SIGN=1` for an approved beta/production build. Verify the installer with `Get-AuthenticodeSignature` and test it on Windows. Provider support must be proven by an actual signed build. Signing does not guarantee no SmartScreen/reputation warnings. The current path does not implement Azure Artifact Signing as a separate service integration.
+
+## Linux and web
+
+Linux has no universal desktop signing identity. Use the generated SHA-256 checksums and the client's chosen package/repository signing policy. Do not label an unsigned AppImage or DEB as signed. A Pages website does not need an application signing key.
+
+## Set up CI only after local signing works
+
+The current protected workflows expect isolated client-controlled signing runners. They keep keystores/profiles outside the checkout and certificates in OS stores or approved providers. Never run untrusted pull requests on signing runners. Keep access restricted and collect only allowlisted artifacts.
+
+For each of `beta` and `production`, the repository owner should approve the environment protections, reviewers, tag restrictions and runner arrangement. A hosted-runner alternative requires a separate review of temporary Keychain/P12/profile handling, permissions, transport and cleanup; it is not configured automatically by this starter.
+
+Preview the required names without authenticating or writing secrets:
+
+```sh
+npm run credentials:github:plan -- --repo client/project --environment beta
+npm run credentials:github:sync -- --repo client/project --environment beta --dry-run
+```
+
+Replace `client/project` with the agreed repository. The manifest lists names/formats, not values. For manual setup, the authorised owner opens **repository Settings → Environments → beta or production**, adds the named environment secrets/variables and configures the agreed protections. Do not paste signing files into text fields. Set `RELEASE_ENABLED=true` only after runner validation and approval.
+
+The optional sync utility uploads only the selected Android password/alias secrets; it rejects private certificate/key-file uploads. An actual write requires authenticated `gh` with repository admin permission, an existing protected environment, selected environment inputs and explicit confirmation of the exact repository/environment. `--names` limits the selection. `--non-interactive` also requires `--confirm OWNER/REPO/ENVIRONMENT` matching the intended target. Values go to `gh` through stdin, not arguments or temporary files; partial failures report written names only. No secret sync has been performed as part of documentation work.
+
+See [GitHub Actions](github-actions.md) for workflow behavior. Platform plan/features can affect available environment protection rules; confirm they can enforce the intended approval policy before enabling releases.
+
+## When something is lost or expires
+
+| Problem                           | First action                                                                                                                       |
+| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Lost Android upload key           | Ask the Play Console owner to follow Google's upload-key reset process. This does not recover or replace Google's app-signing key. |
+| Expired/revoked Apple certificate | Review the team identity and affected provisioning profiles, renew through the client team and revalidate the archive.             |
+| Wrong Apple profile/entitlements  | Check team, Bundle ID, certificate, profile and distribution method together.                                                      |
+| Exposed CI password/token         | Revoke or rotate it at the provider, update protected environments, remove runner copies and review audit logs before rebuilding.  |
+| Departing maintainer              | Transfer account/runner custody and recovery access, then revoke their access.                                                     |
+
+Record public fingerprints, expiry dates, store IDs, owners and backup locations. Keep private values out of the repo. Never generate a replacement production identity just to make a failing build pass. Use [the handover worksheet](client-handover.md) to keep responsibilities clear.

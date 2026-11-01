@@ -1,8 +1,14 @@
 # Universal Starter
 
+Build one app for the web, Android, iPhone, Windows, Mac and Linux. The screens use ordinary HTML, CSS and JavaScript; Capacitor connects them to phones, and Electron provides the desktop app. You can start in a browser and add the native tools when you need them.
+
 [![CI: remote run pending](docs/images/ci-status.svg)](.github/workflows/ci.yml)
 
-One vanilla HTML/CSS/JavaScript SPA for web, Android, iOS, Windows, macOS and Linux. Vite compiles the shared UI; Capacitor and a hardened Electron wrapper supply narrow native adapters. No UI framework, TypeScript, backend or production signing credentials are required for ordinary development. The badge above is an honest static status until remote workflows are enabled; use GitHub's workflow badge URL after configuring your repository.
+The badge is a local status image. It will not show live CI results until you configure this repository on GitHub.
+
+## Try it locally
+
+Install **Node 24**, open a terminal in this project folder, then run:
 
 ```sh
 npm ci
@@ -10,28 +16,53 @@ npm run setup
 npm run dev
 ```
 
-Use Node 24. Open http://127.0.0.1:5173; stop with Ctrl+C. Expect responsive Home/Capabilities/Interactions/Diagnostics/Settings, themes, touch/keyboard carousel, offline status and real capability support/permission results. Install the test browser with `npx playwright install chromium`, then `npm run check`. Native prerequisites are reported by `npm run doctor`.
+Open **http://127.0.0.1:5173**. You should see the Home screen with navigation to Capabilities, Interactions, Diagnostics and Settings. Keep the terminal running while you work; press **Ctrl+C** to stop it. You do not need signing certificates or store accounts for this first run.
 
-[Desktop preview](docs/images/home-desktop.png) · [Phone preview](docs/images/home-phone.png) · [Actual verification matrix](docs/verification.md)
+If this is your first checkout, [Getting started](docs/getting-started.md) explains the commands and what to install next. See the app's [desktop](docs/images/home-desktop.png) and [phone](docs/images/home-phone.png) previews.
 
-| Target  | Command                                        | Prerequisites/output                                |
-| ------- | ---------------------------------------------- | --------------------------------------------------- |
-| Web     | `npm run build:web`                            | dist/web; explicit WEB_BASE for Pages project sites |
-| Android | `npm run build:android`                        | JDK 21/API 36 SDK; bundled debug APK                |
-| iOS     | `npm run build:ios`                            | macOS/Xcode 26+; unsigned simulator .app            |
-| Desktop | `npm run dev:desktop`, `npm run build:desktop` | Electron; host NSIS, DMG/ZIP or AppImage/DEB        |
+## Try the device features
 
-Android/iOS projects are included and equal-priority. This Linux host builds Android/debug+unsigned release and Linux desktop artifacts. iOS/other OS compilation, KVM/device runtime smoke, wireless deployment, signing, Pages and stores remain explicitly disclosed where unverified. A simulator app is not an iPhone IPA; an unsigned AAB is not ready for Play. No releases/accounts/secrets have been published/configured.
+The [device showcase](docs/device-showcase.md) includes GPS, a carousel that follows your finger, native preferences, camera/photos, audio recording and other small device demos. Open **Interactions** to try them. The app explains when an API is unavailable or permission has been denied.
 
-Customize universal-app.config.json, validate/sync metadata and regenerate the single icon master. Identifiers require a guided reviewed migration; client credentials can be onboarded later without recreating projects. V1 documents future generator/updater design but does not implement it. Automatic desktop updates are disabled until trusted signed updates are configured/tested. Code and original artwork use MIT; runtime dependency notices are bundled in Settings and resources/THIRD_PARTY_NOTICES.txt.
+Native changes require rebuilding and reinstalling the phone app. Browser tests cannot confirm a physical microphone or GPS receiver works. See the [showcase verification report](docs/device-showcase-verification.md) and [original implementation report](docs/verification.md) for what actually ran.
 
-The [device showcase](docs/device-showcase.md) adds foreground GPS, finger-following carousel snapping, native system preferences, camera/photos, battery/language/orientation/motion/lifecycle and local audio recording/playback/export on web, Android/iOS and Electron. Native features need a rebuild/reinstall; support and permissions are reported honestly.
+## Choose your next step
 
-Documentation:
+| You want to…                                                | Follow this guide                                                                   |
+| ----------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| Give a client clear account-setup instructions              | **[Client: start here](docs/client-start-here.md)**                                 |
+| Set up an Android phone without USB                         | [Wireless Android development](docs/android-wireless.md)                            |
+| Build for Android                                           | [Android](docs/android.md)                                                          |
+| Understand iPhone development without owning Apple hardware | [iOS](docs/ios.md) and [client Apple setup](docs/client-apple.md)                   |
+| Run or package a desktop app                                | [Desktop](docs/desktop.md)                                                          |
+| Change the app's name, icon or screens                      | [Customisation](docs/customisation.md)                                              |
+| Put the website on GitHub Pages                             | [GitHub Actions and Pages](docs/github-actions.md)                                  |
+| Prepare signing and release builds                          | [Credentials](docs/credentials.md) and [store publishing](docs/store-publishing.md) |
 
-- [Getting started](docs/getting-started.md), [commands and flags](docs/commands.md), [tested toolchain](docs/toolchain.md), [development](docs/development.md)
-- [Architecture/contract](docs/architecture.md), [customisation](docs/customisation.md), [template ownership/upgrades](docs/template-and-upgrades.md)
-- [Android](docs/android.md), [USB-free wireless Android](docs/android-wireless.md), [iOS](docs/ios.md), [desktop](docs/desktop.md)
-- [Testing](docs/testing.md), [GitHub Actions/Pages](docs/github-actions.md), [credentials/client handoff](docs/credentials.md)
-- [Beta testing](docs/beta-testing.md), [store publishing](docs/store-publishing.md), [releases/updates](docs/releases-and-updates.md), [release checklist](docs/release-checklist.md)
-- [Security](docs/security.md), [privacy policy template](docs/privacy-policy-template.md), [troubleshooting](docs/troubleshooting.md), [known limitations](docs/known-limitations.md)
+## Common commands
+
+| Command                 | What you get                                | What else you need                            |
+| ----------------------- | ------------------------------------------- | --------------------------------------------- |
+| `npm run build:web`     | Website files in `dist/web`                 | Node/npm; configure the base path for Pages   |
+| `npm run build:android` | Installable development APK                 | JDK 21 and Android API 36 SDK                 |
+| `npm run build:ios`     | iOS simulator app                           | A Mac with Xcode 26+                          |
+| `npm run dev:desktop`   | Desktop app with live reload                | Electron's host OS prerequisites              |
+| `npm run build:desktop` | Installer/package for this computer's OS    | The matching host and packaging prerequisites |
+| `npm run doctor`        | A report of missing tools and signing setup | No production credentials required            |
+
+For automated checks, first run `npx playwright install chromium`, then `npm run check`. The [command reference](docs/commands.md) lists every script and its options. Exact tested versions are in [Toolchain](docs/toolchain.md).
+
+## Preparing a client app
+
+The template includes placeholder names and identifiers. Follow [Customisation](docs/customisation.md) before preparing a public release; changing an already-published app's identifier creates a different app. Clients keep ownership of their accounts and signing keys. They can arrange signing later without starting the project again.
+
+The app has one shared vanilla JavaScript UI, with no UI framework, TypeScript or backend. Core packaged screens work offline. Automatic desktop updates stay disabled until trusted signed updates have been configured and tested. The future project-generator/updater CLI is documented, not implemented.
+
+Code and original artwork use MIT. Runtime dependency notices are included in Settings and `resources/THIRD_PARTY_NOTICES.txt`. Documentation links to third-party screenshots identify their original source.
+
+## More documentation
+
+- Build and develop: [development](docs/development.md), [architecture and platform API](docs/architecture.md), [template ownership and upgrades](docs/template-and-upgrades.md).
+- Test and release: [testing](docs/testing.md), [beta testing](docs/beta-testing.md), [releases and updates](docs/releases-and-updates.md), [release checklist](docs/release-checklist.md).
+- Client handover: [Apple](docs/client-apple.md), [Google Play](docs/client-google-play.md), [desktop signing](docs/client-desktop.md), [ownership worksheet](docs/client-handover.md).
+- Resolve problems: [troubleshooting](docs/troubleshooting.md), [known limitations](docs/known-limitations.md), [security](docs/security.md), [privacy policy template](docs/privacy-policy-template.md).

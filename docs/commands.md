@@ -1,6 +1,8 @@
 # Command reference
 
-Run from the repository root with Node 24 after npm ci. This table is synchronized with package.json; unknown SDK/OS/device/credential prerequisites fail with an actionable message, never a fake success. Native commands do not require production credentials unless explicitly signing/exporting. Use npm's `--` separator before flags.
+Use this page to look up a command, rather than reading it from top to bottom. For a first run, follow [Getting started](getting-started.md); for client account instructions, use [Client: start here](client-start-here.md).
+
+Run commands from the project root with Node 24 and installed dependencies (`npm ci`). Put flags after npm's `--` separator. The scripts explain missing SDK, OS, device or credential prerequisites. Ordinary native development does not need production signing credentials.
 
 | npm script                          | Actual behaviour                                                                         |
 | ----------------------------------- | ---------------------------------------------------------------------------------------- |

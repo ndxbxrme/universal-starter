@@ -1,11 +1,40 @@
-# Development
+# Work on the app day to day
 
-Use Node 24. Run `npm ci`, then `npm run dev`. Open http://127.0.0.1:5173. Expected: Home with a platform badge and sidebar; edits hot reload. Ctrl+C stops the server.
+Most screen changes can be made in the browser first. The phone and desktop apps use the same UI; their platform adapters provide the native features.
 
-`npm run build` produces `dist/native` with relative assets for wrappers. `npm run build:web` produces `dist/web`; set `WEB_BASE=/repository-name/` for a Pages project site. Never pass a Pages base to native builds. Hash routes preserve browser history without a server fallback.
+## Start a browser session
 
-Theme is stored locally. Session diagnostics stay in memory; file content is not read or uploaded. Offline navigation works after loading the browser app; web reload while offline is not promised (no service worker). Packaged apps bundle the UI and do not need a network to start.
+With Node 24 selected and dependencies installed, run:
 
-Browser permissions are requested by interaction buttons. Denial is reported; change it using browser site settings. Unsupported APIs are disabled. A desktop browser’s vibration API can exist without physical vibration hardware, so browser support is only an API availability claim.
+```sh
+npm run dev
+```
 
-Reference views from the local implementation: [desktop](images/home-desktop.png) and [phone](images/home-phone.png). These are browser screenshots, not evidence of a native device run.
+Open **http://127.0.0.1:5173** and leave the terminal running. Saving a shared UI file should update the page automatically. Press **Ctrl+C** to stop. For a fresh checkout, follow [Getting started](getting-started.md) first.
+
+Port 5173 must be available. Stop an earlier development server before starting `dev:android` or `dev:desktop`, which manage their own server session.
+
+## Choose the right output
+
+| Command             | Output        | Use it for                                       |
+| ------------------- | ------------- | ------------------------------------------------ |
+| `npm run build`     | `dist/native` | Bundled phone/desktop assets with relative paths |
+| `npm run build:web` | `dist/web`    | Static website files                             |
+
+For a Pages project site, supply the explicit `WEB_BASE=/repository-name/` setting as described in [GitHub Actions](github-actions.md). Native builds must not inherit that path. Hash routes keep navigation working on Pages without a server fallback.
+
+## Test features in the right place
+
+Browser APIs can differ from native phone APIs. Use the interaction buttons to request permissions; if denied, the result explains what happened. Change browser site permissions to retry. An unavailable API stays unsupported. A vibration API existing in a desktop browser does not mean the computer contains vibration hardware.
+
+The new GPS, camera and audio demos are described in [Device showcase](device-showcase.md). Native/plugin changes need a rebuild and reinstall, even when JavaScript live reload works. Use [wireless Android](android-wireless.md), [iOS](ios.md) or [Desktop](desktop.md) for the target-specific loop.
+
+## Understand what persists
+
+The theme is stored locally. Session diagnostics remain in memory. The file-picker demo returns metadata without reading or uploading file contents. GPS and temporary audio/photo behavior have their own explicit controls; see the showcase guide before testing real personal data.
+
+Once loaded, browser navigation can work without the network, but reloading the website offline is not promised because there is no service worker. Packaged apps bundle their screens and do not need a network connection to start.
+
+## Compare the layout
+
+The reference [desktop](images/home-desktop.png) and [phone](images/home-phone.png) images show browser layouts, not native-device acceptance. Check keyboard focus, touch targets, light/dark themes, reduced motion and small-screen overflow as you change screens. Run `npm run check` before handing over a change.
